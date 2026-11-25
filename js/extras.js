@@ -158,7 +158,8 @@ export function platesHTML(target, bar) {
 const R_KEYS = { kcal: 'kcal', protein: 'protein', skritt: 'steps', sovn: 'sleep', 'søvn': 'sleep', vekt: 'weight', midje: 'waist' };
 export function parseReport(text) {
   const days = [];
-  for (const line of String(text || '').split(/\n+/)) {
+  // Del ved hvert «ISTREFI» – linjeskift kan forsvinne når koden kopieres på iPhone.
+  for (const line of String(text || '').split(/(?=istrefi)/i)) {
     if (!/istrefi/i.test(line)) continue;
     const d = line.match(/dato\s*=\s*(\d{4}-\d{2}-\d{2})/i);
     if (!d) continue;
