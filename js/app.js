@@ -3,9 +3,10 @@ import { GROUPS, EQUIP, TYPES, slug } from './exercises.js';
 import { $, $$, uid, esc, DAYS, DAYS_SHORT, dayIdx, weekStart, fmtDate, fmtDay, fmtShort, fmtMonth, fmtTime, fmtDur, mmss, parseNum, fmtNum, isoDate, fromIso, toast, shareOrDownload, copyText } from './util.js';
 import { lineChart } from './charts.js';
 import { ANGLES, addPhotos, photoURL, forgetURL, photosByAngle, weightNear } from './photos.js';
+import { SPRITE, bodyMini, bodyMap } from './muscles.js';
 import { importProgram, validateProgram, exportForClaude, makeBackup, restoreBackup, wipeAll } from './data.js';
 
-const APP_VERSION = '1.0.0';
+const APP_VERSION = '1.1.0';
 const ui = { lib: { q: '', g: '', eq: '' }, photoAngle: 'front', cmp: { angle: 'front', a: null, b: null, mode: 'slide', pos: 50 }, exportDays: 28 };
 
 // ================= Router =================
@@ -157,7 +158,7 @@ function vTemplate(id) {
   const rows = t.exercises.map((e, i) => {
     const x = ex(e.exId);
     return `<div class="card tex" data-i="${i}">
-      <div class="row between"><a class="grow" href="#/exercise/${x.id}"><b>${i + 1}. ${esc(x.name)}</b><small class="muted">${GROUPS[x.group] || ''} · ${EQUIP[x.eq] || ''}</small></a>
+      <div class="row between"><a class="grow row gap" href="#/exercise/${x.id}">${bodyMini(x)}<span class="grow"><b>${i + 1}. ${esc(x.name)}</b><small class="muted">${GROUPS[x.group] || ''} · ${EQUIP[x.eq] || ''}</small></span></a>
         <div class="row"><button class="icon-btn sm" data-a="tMove" data-i="${i}" data-d="-1">${icon.up}</button><button class="icon-btn sm" data-a="tMove" data-i="${i}" data-d="1">${icon.down}</button><button class="icon-btn sm danger" data-a="tRemove" data-i="${i}">${icon.x}</button></div></div>
       <div class="grid4">
         <label>Sett<input data-tf="sets" data-i="${i}" inputmode="numeric" value="${esc(e.sets)}"></label>
@@ -210,7 +211,7 @@ function workoutView(w, mode) {
     const doneN = e.sets.filter((s) => s.done).length;
     return `<div class="card wex ${doneN && doneN === e.sets.length ? 'complete' : ''}">
       <div class="row between">
-        <a class="grow" href="#/exercise/${x.id}"><b class="exname">${esc(x.name)}</b></a>
+        <a class="grow row gap" href="#/exercise/${x.id}">${bodyMini(x)}<b class="exname">${esc(x.name)}</b></a>
         <button class="icon-btn sm" data-a="exMenu" data-i="${i}" aria-label="Meny">${icon.dots}</button>
       </div>
       ${e.target ? `<div class="target">${esc(targetText(e.target))}${e.target.notes ? `<br><i>${esc(e.target.notes)}</i>` : ''}</div>` : ''}
@@ -377,8 +378,8 @@ function libFilter() {
 function libList(list, pick) {
   if (!list.length) return '<p class="muted center">Ingen treff. Du kan lage en egen øvelse.</p>';
   return list.map((x) => pick
-    ? `<label class="item pick"><input type="checkbox" value="${x.id}" ${pick.has(x.id) ? 'checked' : ''}><div class="grow"><b>${esc(x.name)}</b><small class="muted">${GROUPS[x.group] || ''} · ${EQUIP[x.eq] || ''}</small></div></label>`
-    : `<a class="item" href="#/exercise/${x.id}"><div class="grow"><b>${esc(x.name)}${x.custom ? ' <span class="badge">egen</span>' : ''}</b><small class="muted">${GROUPS[x.group] || ''} · ${EQUIP[x.eq] || ''}</small></div>${icon.chev}</a>`).join('');
+    ? `<label class="item pick"><input type="checkbox" value="${x.id}" ${pick.has(x.id) ? 'checked' : ''}>${bodyMini(x)}<div class="grow"><b>${esc(x.name)}</b><small class="muted">${GROUPS[x.group] || ''} · ${EQUIP[x.eq] || ''}</small></div></label>`
+    : `<a class="item" href="#/exercise/${x.id}">${bodyMini(x)}<div class="grow"><b>${esc(x.name)}${x.custom ? ' <span class="badge">egen</span>' : ''}</b><small class="muted">${GROUPS[x.group] || ''} · ${EQUIP[x.eq] || ''}</small></div>${icon.chev}</a>`).join('');
 }
 function filterBar() {
   return `<input type="search" class="search" data-lib="q" value="${esc(ui.lib.q)}" placeholder="Søk i ${allEx().length} øvelser…">
@@ -428,7 +429,7 @@ function vExercise(id) {
   }
   return {
     title: x.name, back: 'history-back',
-    html: `<div class="card">
+    html: `<div class="card">${bodyMap(x)}</div><div class="card">
         <div class="chips small"><span>${GROUPS[x.group] || ''}</span><span>${EQUIP[x.eq] || ''}</span><span>${TYPES[x.type]}</span>${x.custom ? '<span>Egen øvelse</span>' : ''}</div>
         <a class="btn block mt" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=${encodeURIComponent(x.name + ' exercise technique')}">▶︎ Se teknikk på YouTube</a>
         ${x.custom ? `<button class="btn block ghost danger mt" data-a="delCustom" data-id="${x.id}">Slett egen øvelse</button>` : ''}
@@ -874,6 +875,7 @@ async function seedIfEmpty() {
     $('#main').innerHTML = `<div class="card"><b>Kunne ikke åpne lagringen</b><p class="muted">${esc(e.message)}</p></div>`;
     return;
   }
+  document.body.insertAdjacentHTML('afterbegin', SPRITE);
   navigator.storage?.persist?.().catch(() => {});
   document.addEventListener('pointerdown', unlockAudio, { once: true });
   render();

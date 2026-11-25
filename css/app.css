@@ -4,6 +4,7 @@
   --danger: #ff5468; --ok: #3ddc84; --warm: #ffb547;
   --r: 16px; --tabh: 62px;
   --safe-b: env(safe-area-inset-bottom, 0px); --safe-t: env(safe-area-inset-top, 0px);
+  --m-off: #2b313a; --m-pri: #c6ff3d; --m-sec: #5f7a24; --m-base: #20252c; --m-sil: #171b20; --m-gap: #0e1115;
   color-scheme: dark;
 }
 [hidden] { display: none !important; }
@@ -271,3 +272,17 @@ details.notes summary { color: var(--accent); font-weight: 600; cursor: pointer;
 @media (max-width: 370px) {
   .set-head, .set-row { grid-template-columns: 30px 1fr 58px 50px 42px 40px; gap: 4px; }
 }
+
+/* Muskelkart */
+svg.body { stroke: none; width: 100%; height: auto; }
+svg.body.mini { width: 28px; height: 80px; flex: none; }
+.item svg.body.mini { margin: -10px 0; }
+.wex svg.body.mini, .tex svg.body.mini { width: 20px; height: 56px; }
+.bodymap .bm-figs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; max-width: 300px; margin: 0 auto; }
+.bodymap figure { margin: 0; text-align: center; }
+.bodymap figcaption { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.bm-legend { margin-top: 12px; display: grid; gap: 8px; }
+.bm-legend > div { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; }
+.bm-legend b { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.bm-legend i { width: 14px; height: 14px; border-radius: 4px; flex: none; margin-top: 3px; }
+.bm-legend i.pri { background: var(--m-pri); } .bm-legend i.sec { background: var(--m-sec); }
