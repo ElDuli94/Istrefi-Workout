@@ -240,6 +240,7 @@ const OVERRIDES = {
   'worlds-greatest-stretch': 'quads hamstrings upperback | glutes adductors',
   'thoracic-rotation': 'upperback | obliques',
   'cat-cow': 'lowerback upperback | abs',
+  'reverse-snow-angel': 'upperback delt_rear | traps lowerback',
 };
 const parse = (str) => { const [p, s = ''] = str.split('|'); const pr = split(p.trim()); return { primary: pr, secondary: split(s.trim()).filter((k) => !pr.includes(k)) }; };
 
