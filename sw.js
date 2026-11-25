@@ -1,6 +1,6 @@
 // Service worker: gjør appen tilgjengelig offline.
 // Øk VERSION ved hver endring av app-filene.
-const VERSION = 'v1.1.0';
+const VERSION = 'v1.1.1';
 const CACHE = 'istrefi-' + VERSION;
 const SHELL = [
   './', './index.html', './manifest.webmanifest', './css/app.css',

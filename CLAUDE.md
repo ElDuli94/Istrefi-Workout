@@ -57,4 +57,5 @@ Ved (b): Pages bygger fra `main`, så filen må til `main` for at appen skal se 
 ## Kodenotater
 
 - Ikke endre navn på eksisterende øvelser i `js/exercises.js` – ID-ene brukes i logg og programmer. Legg til nye linjer i stedet.
+- Muskelkart: `js/muscles.js`. Regler per gruppe/navn gir standard; `OVERRIDES` (per øvelses-ID) har forrang. Rett feil der.
 - Øk `VERSION` i `sw.js` ved endringer i app-filer (ellers får telefonen gammel cache). Nye JS-filer må inn i `SHELL`.

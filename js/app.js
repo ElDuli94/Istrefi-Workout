@@ -6,7 +6,7 @@ import { ANGLES, addPhotos, photoURL, forgetURL, photosByAngle, weightNear } fro
 import { SPRITE, bodyMini, bodyMap } from './muscles.js';
 import { importProgram, validateProgram, exportForClaude, makeBackup, restoreBackup, wipeAll } from './data.js';
 
-const APP_VERSION = '1.1.0';
+const APP_VERSION = '1.1.1';
 const ui = { lib: { q: '', g: '', eq: '' }, photoAngle: 'front', cmp: { angle: 'front', a: null, b: null, mode: 'slide', pos: 50 }, exportDays: 28 };
 
 // ================= Router =================
