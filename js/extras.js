@@ -51,7 +51,6 @@ export function dailyCard() {
   const has = DAILY_FIELDS.some(({ f }) => S.settings.targets?.[f]);
   return `<div class="card daily"><div class="row between"><div class="eyebrow">Dagens sjekkliste</div><a class="small muted" href="#/progress">Siste 7 dager ›</a></div>
     ${dailyInputs(date)}
-    <div class="row gap mt-s"><button class="btn sm grow" data-a="healthImport">📲 Hent fra Helse</button><a class="btn sm ghost" href="#/helse">Oppsett</a></div>
     ${has ? '<p class="muted small m0 mt-s">Grå tall er målene dine. Grønn = nådd.</p>' : '<p class="muted small m0 mt-s">Sett målene dine under Innstillinger (tannhjulet).</p>'}</div>`;
 }
 const last7 = () => [...Array(7)].map((_, i) => isoDate(Date.now() - (6 - i) * DAY));
@@ -153,35 +152,3 @@ export function platesHTML(target, bar) {
     ${r.rest ? `<p class="muted small">Går ikke helt opp – ${fmtNum(r.rest)} kg mangler med vanlige skiver.</p>` : ''}`;
 }
 
-// ---------- Import fra Apple Helse (via Snarveier + utklippstavle) ----------
-// Format fra snarveien: "istrefi;dato=2026-11-25;kcal=1890;protein=172;skritt=9500;sovn=7,2"
-const H_KEYS = { kcal: 'kcal', kalorier: 'kcal', energi: 'kcal', protein: 'protein', skritt: 'steps', steps: 'steps', sovn: 'sleep', søvn: 'sleep', sleep: 'sleep' };
-export function parseHealth(text) {
-  const t = String(text || '').trim();
-  // Bare tall, ett per linje (eller skilt med ;): rekkefølge kalorier, protein, skritt, søvn.
-  const parts = t.split(/[;\n|]+/).map((x) => x.replace(/[\s\u00a0\u202f]|kcal|g\b/gi, '').replace(',', '.')).filter(Boolean);
-  if (parts.length && parts.length <= 4 && parts.every((x) => /^\d+(\.\d+)?$/.test(x))) {
-    const keys = ['kcal', 'protein', 'steps', 'sleep'];
-    const out = { date: null };
-    parts.forEach((x, i) => {
-      let v = parseFloat(x); if (!(v > 0)) return;
-      if (keys[i] === 'sleep') { v = v > 1440 ? v / 3600 : v > 24 ? v / 60 : v; out.sleep = Math.round(v * 10) / 10; }
-      else out[keys[i]] = Math.round(v);
-    });
-    if (out.kcal > 15000 || out.protein > 1000) return null; // urimelig: trolig feil skilletegn
-    return ['kcal', 'protein', 'steps', 'sleep'].some((k) => out[k] != null) ? out : null;
-  }
-  if (!/kcal|protein|skritt|steps|s[oø]vn|sleep/i.test(t)) return null;
-  const out = { date: null };
-  for (const m of t.matchAll(/([a-zæøå]+)\s*[=:]\s*([^;\n]+)/gi)) {
-    const k = m[1].toLowerCase(), raw = m[2].trim();
-    if (k === 'dato' || k === 'date') { const d = raw.match(/(\d{4})-(\d{2})-(\d{2})/); if (d) out.date = d[0]; continue; }
-    const key = H_KEYS[k]; if (!key) continue;
-    const n = parseFloat(raw.replace(/[\s  ]/g, '').replace(',', '.'));
-    if (!Number.isFinite(n) || n <= 0) continue;
-    let v = n;
-    if (key === 'sleep') v = n > 1440 ? n / 3600 : n > 24 ? n / 60 : n; // sek / min / timer
-    out[key] = key === 'sleep' ? Math.round(v * 10) / 10 : Math.round(v);
-  }
-  return ['kcal', 'protein', 'steps', 'sleep'].some((k) => out[k] != null) ? out : null;
-}

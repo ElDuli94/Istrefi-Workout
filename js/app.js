@@ -4,10 +4,10 @@ import { $, $$, uid, esc, DAYS, DAYS_SHORT, dayIdx, weekStart, fmtDate, fmtDay, 
 import { lineChart } from './charts.js';
 import { ANGLES, addPhotos, photoURL, forgetURL, photosByAngle, weightNear } from './photos.js';
 import { SPRITE, bodyMini, bodyMap } from './muscles.js';
-import { parseHealth, progression, dailyCard, dailyInputs, dailyClass, dailyWeekCard, streak, weekReport, reminderCard, platesHTML } from './extras.js';
+import { progression, dailyCard, dailyInputs, dailyClass, dailyWeekCard, streak, weekReport, reminderCard, platesHTML } from './extras.js';
 import { importProgram, validateProgram, exportForClaude, makeBackup, restoreBackup, wipeAll } from './data.js';
 
-const APP_VERSION = '1.4.5';
+const APP_VERSION = '1.5.0';
 const ui = { lib: { q: '', g: '', eq: '' }, photoAngle: 'front', cmp: { angle: 'front', a: null, b: null, mode: 'slide', pos: 50 }, exportDays: 28 };
 
 // ================= Router =================
@@ -541,7 +541,7 @@ function vSettings() {
 
       <div class="card">
         <div class="eyebrow">Daglige mål</div>
-        <p class="muted small">Brukes i sjekklisten på forsiden. Lagres kun på telefonen. <a class="link" href="#/helse">Hent automatisk fra MyFitnessPal/Garmin via Apple Helse ›</a></p>
+        <p class="muted small">Brukes i sjekklisten på forsiden. Lagres kun på telefonen.</p>
         <div class="grid2">
           <label class="lbl">Kalorier (maks)<input data-set="targets.kcal" inputmode="numeric" value="${S.settings.targets?.kcal ?? ''}" placeholder="f.eks. 2000"></label>
           <label class="lbl">Protein (g)<input data-set="targets.protein" inputmode="numeric" value="${S.settings.targets?.protein ?? ''}" placeholder="f.eks. 170"></label>
@@ -594,67 +594,12 @@ async function storageInfo() {
   } catch { el.textContent = ''; }
 }
 
-function vHealth() {
-  const step = (n, title, body) => `<div class="hstep"><span class="hnum">${n}</span><div><b>${title}</b>${body}</div></div>`;
-  return {
-    title: 'Hent fra Helse', back: '#/home',
-    html: `
-      <div class="card"><div class="eyebrow">Først: hvordan det henger sammen</div>
-        <p class="m0">Appen din får <b>ikke lov</b> av Apple til å lese Helse direkte. Derfor trenger vi et «bud»: en <b>snarvei</b> i Snarveier-appen på iPhone.</p>
-        <div class="flow"><span>MyFitnessPal<br>Garmin</span>→<span>Apple<br>Helse</span>→<span>Snarvei<br><small>kopierer tallene</small></span>→<span>Denne appen<br><small>📲 Hent fra Helse</small></span></div>
-        <p class="muted small m0">Snarveien lager du én gang. Etterpå er det bare: kjør snarveien → åpne appen → trykk knappen.</p>
-      </div>
-
-      <div class="card guide"><div class="eyebrow">Del 1 · Bare kalorier først (test at det virker)</div>
-        ${step(1, 'Åpne Snarveier-appen', '<p>Den er forhåndsinstallert (ikon med to fargede firkanter). Finner du den ikke: sveip ned på hjemskjermen og søk «Snarveier».</p>')}
-        ${step(2, 'Lag ny snarvei', '<p>Trykk <b>+</b> øverst til høyre. Trykk på navnet øverst («Ny snarvei») → <b>Gi nytt navn</b> → skriv <code>Istrefi Helse</code>.</p>')}
-        ${step(3, 'Hent kaloriene', '<p>Trykk i søkefeltet nederst («Søk etter handlinger») og skriv <code>helse</code>. Velg den som heter <b>Finn Helse-datapunkter</b> (eng. <i>Find Health Samples</i>).</p><p>I den blå teksten som dukker opp: trykk på <b>Type</b> → bla og velg <b>Energi fra mat</b> (står under E; eng. <i>Dietary Energy</i>, det er kaloriene fra MyFitnessPal). Ikke velg «Aktiv energi».</p><p>Filteret <b>Startdato</b> ligger der allerede: trykk på «er i de siste» og velg <b>er i dag</b>.</p>')}
-        ${step(4, 'Legg sammen alle måltidene', '<p>Søk etter <code>statistikk</code> og velg <b>Beregn statistikk</b>. Trykk på det blå ordet og velg <b>Sum</b>.</p>')}
-        ${step(5, 'Gi tallet et navn', '<p>Søk etter <code>variabel</code> og velg <b>Angi variabel</b> (eng. <i>Set Variable</i>). Trykk på «Variabelnavn» og skriv <code>kcal</code>.</p>')}
-        ${step(6, 'Lag teksten appen forstår', '<p>Søk etter <code>tekst</code> og velg <b>Tekst</b>. Trykk i tekstboksen og skriv:</p><pre>kcal=</pre><p>Rett etter = (uten mellomrom): se på raden <b>over tastaturet</b>. Der står variablene. Trykk på <b>kcal</b>. Den legges inn som en liten farget boble.</p>')}
-        ${step(7, 'Kopier', '<p>Søk etter <code>kopier</code> og velg <b>Kopier til utklipp</b>. Trykk <b>Ferdig</b> oppe til høyre.</p>')}
-        ${step(8, 'Test!', '<p>Trykk på snarveien én gang for å kjøre den. Første gang spør iPhone om tilgang til Helse: trykk <b>Tillat</b> / slå på Energi fra mat.</p><p>Gå tilbake hit og trykk knappen under. Når iPhone viser en liten <b>«Lim inn»</b>-boble, trykker du på den.</p>')}
-        <button class="btn primary block mt" data-a="healthImport">📲 Hent fra Helse</button>
-        <p class="muted small">Ser du kaloriene dine på sjekklisten nå? 🎉 Da virker det. Fortsett med del 2.</p>
-      </div>
-
-      <div class="card guide"><div class="eyebrow">Del 2 · Legg til protein og skritt</div>
-        ${step(1, 'Rediger snarveien', '<p>I Snarveier: trykk på <b>⋯</b> på «Istrefi Helse»-kortet for å redigere.</p>')}
-        ${step(2, 'Protein', '<p>Gjør steg 3–5 fra del 1 på nytt, men velg Type <b>Protein</b> og kall variabelen <code>protein</code>. De nye handlingene havner nederst. Hold fingeren på dem og dra dem opp <b>over</b> Tekst-handlingen.</p>')}
-        ${step(3, 'Skritt', '<p>Samme igjen med Type <b>Skritt</b> og variabelnavn <code>skritt</code>.</p>')}
-        ${step(4, 'Utvid teksten', '<p>Trykk i Tekst-boksen, helt bakerst, og skriv <code>;protein=</code> → trykk <b>protein</b>-variabelen. Skriv så <code>;skritt=</code> → trykk <b>skritt</b>. Ferdig ser den slik ut:</p><pre>kcal=[kcal];protein=[protein];skritt=[skritt]</pre>')}
-      </div>
-
-      <div class="card guide"><div class="eyebrow">Del 3 · Søvn (valgfritt, litt vanskeligere)</div>
-        ${step(1, 'Finn søvnen', '<p>Legg til <b>Finn Helse-datapunkter</b> med Type <b>Søvn</b> (eng. <i>Sleep</i>). Filter: <b>Sluttdato</b> · <b>er i dag</b>. Trykk <b>Legg til filter</b> igjen: <b>Verdi</b> · <b>er ikke</b> · <b>Våken</b>.</p>')}
-        ${step(2, 'Hent lengden', '<p>Søk etter <code>detaljer</code> og velg <b>Hent detaljer om Helse-datapunkt</b> → velg <b>Varighet</b>.</p>')}
-        ${step(3, 'Summer og gi navn', '<p><b>Beregn statistikk</b> → <b>Sum</b>, så <b>Angi variabel</b> <code>sovn</code>. Dra dem over Tekst-handlingen.</p>')}
-        ${step(4, 'Utvid teksten', '<p>Legg til <code>;sovn=</code> + <b>sovn</b>-variabelen bakerst i teksten. Appen skjønner selv om tallet er sekunder, minutter eller timer.</p>')}
-      </div>
-
-      <div class="card guide"><div class="eyebrow">Bonus · Kjør den automatisk hver kveld</div>
-        ${step(1, 'Automasjon', '<p>Nederst i Snarveier: <b>Automasjon</b> → <b>+</b> → <b>Tidspunkt</b> → f.eks. <b>21:00</b>, Daglig.</p>')}
-        ${step(2, 'Kjør umiddelbart', '<p>Velg <b>Kjør umiddelbart</b> (ikke «Spør før kjøring»), og velg snarveien <b>Istrefi Helse</b>.</p>')}
-        <p class="muted small">Vil du at tallene skal havne på riktig dag selv om du åpner appen dagen etter, kan du legge til dato også: legg til <b>Dato</b> → <b>Formater dato</b> (egendefinert format <code>yyyy-MM-dd</code>), og skriv <code>;dato=</code> + <b>Formatert dato</b> bakerst i teksten.</p>
-      </div>
-
-      <div class="card guide"><div class="eyebrow">Får du ingen tall?</div>
-        <ul>
-          <li><b>MyFitnessPal må skrive til Helse:</b> MyFitnessPal → Mer → Innstillinger → Apper og enheter (Sharing &amp; Privacy) → Apple Helse → slå på næringsstoffer.</li>
-          <li><b>Garmin:</b> Garmin Connect → Mer → Innstillinger → Tilkoblede apper → Apple Helse → slå på skritt og søvn.</li>
-          <li><b>Sjekk i Helse-appen:</b> Utforsk → Ernæring → Energi fra mat. Står det tall der for i dag, virker koblingen.</li>
-          <li>Stå det stille? Ta skjermbilde av snarveien og send det til Claude.</li>
-        </ul>
-      </div>`,
-  };
-}
-
 function vWeek(arg) {
   const off = Math.min(0, parseInt(arg, 10) || 0);
   return { title: 'Ukerapport', back: '#/home', tab: 'history', html: weekReport(off, { sessionItem, prList }) };
 }
 
-const VIEWS = { helse: vHealth, week: vWeek, home: vHome, plan: vPlan, template: vTemplate, active: vActive, session: vSession, library: vLibrary, exercise: vExercise, history: vHistory, progress: vProgress, compare: vCompare, settings: vSettings };
+const VIEWS = { week: vWeek, home: vHome, plan: vPlan, template: vTemplate, active: vActive, session: vSession, library: vLibrary, exercise: vExercise, history: vHistory, progress: vProgress, compare: vCompare, settings: vSettings };
 
 // ================= Ark (bottom sheet) =================
 function openSheet(html) { $('#sheet-body').innerHTML = html; $('#sheet').hidden = false; document.body.classList.add('noscroll'); }
@@ -814,17 +759,6 @@ const A = {
       ${dailyInputs(d)}<button class="btn primary block mt" data-a="closeDaily">Ferdig</button>`);
   },
   closeDaily: () => { closeSheet(); render(); },
-  healthImport: async () => {
-    let text = '';
-    try { text = await navigator.clipboard.readText(); } catch {}
-    if (applyHealth(text)) return;
-    openSheet(`<div class="sheet-head"><b>Hent fra Helse</b><button class="icon-btn sm" data-a="closeSheet">${icon.x}</button></div>
-      <p class="muted small">${text ? 'Fant ikke tall fra snarveien i utklippstavlen.' : 'Fikk ikke lest utklippstavlen.'} Kjør snarveien <b>Istrefi Helse</b> først, eller lim inn teksten her:</p>
-      <textarea id="hl-in" rows="3" placeholder="istrefi;dato=…;kcal=…;protein=…"></textarea>
-      <button class="btn primary block mt" data-a="healthPaste">Bruk</button>
-      <a class="btn block ghost mt" href="#/helse" data-a="closeSheet">Hvordan setter jeg opp snarveien?</a>`);
-  },
-  healthPaste: () => { if (applyHealth($('#hl-in').value)) closeSheet(); else toast('Fant ingen tall i teksten'); },
   snooze: async () => { S.settings.snoozeUntil = Date.now() + 3 * 864e5; await store.saveSettings(); render(); },
 
   // --- bibliotek ---
@@ -899,22 +833,6 @@ const A = {
     await wipeAll(); location.hash = '#/home'; location.reload();
   },
 };
-
-function applyHealth(text) {
-  const h = parseHealth(text);
-  if (!h) return false;
-  const date = h.date || isoDate();
-  const day = (S.daily[date] ||= {});
-  const got = [];
-  if (h.kcal != null) { day.kcal = h.kcal; got.push(`${h.kcal} kcal`); }
-  if (h.protein != null) { day.protein = h.protein; got.push(`${h.protein} g protein`); }
-  if (h.steps != null) { day.steps = h.steps; got.push(`${h.steps} skritt`); }
-  if (h.sleep != null) { day.sleep = h.sleep; got.push(`${fmtNum(h.sleep)} t søvn`); }
-  store.saveDaily();
-  toast(`${date === isoDate() ? 'I dag' : fmtDate(new Date(date + 'T12:00').getTime())}: ${got.join(' · ')} ✓`, 3500);
-  render();
-  return true;
-}
 
 // ================= Eventer =================
 document.addEventListener('click', (ev) => {

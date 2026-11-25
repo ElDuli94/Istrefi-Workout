@@ -11,7 +11,8 @@ Brukeren vil bruke Claude som PT som lager ukesprogrammer. Kontekst (fra oppstar
   (30 min, 2–3 øvelser per dag, man–fre + gåtur lør, hvile søn). Liker korte, raske økter. Nybegynner.
   Alternativ ved lite tid: «Korte økter – 3 dager».
 - Utstyr: fullt treningssenter, men også hjemme (manualer/strikk) og kroppsvekt.
-- Logger kg, reps og RPE per sett.
+- Logger kg, reps og RPE per sett. Kosthold logges i MyFitnessPal; brukeren skriver ev. kalorier/protein/skritt
+  inn i appens sjekkliste selv eller oppgir dem direkte i chatten (ingen automatisk Helse-kobling – valgt bort).
 
 Brukeren limer inn en tekst-eksport av loggen (fra appen) i chatten. Bruk den til å vurdere progresjon
 (e1RM, volum, RPE-trend, kroppsvekt) før du lager neste program.
