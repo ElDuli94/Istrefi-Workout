@@ -1,0 +1,141 @@
+{
+  "format": "istrefi-program/1",
+  "name": "Korte økter – 3 dager",
+  "description": "Mandag, onsdag og fredag. Bein slått sammen med press og rygg. Gir ca. 80 % av effekten av 5-dagersplanen.",
+  "notes": "30-minutters økter med 2–3 øvelser. Mål: beholde og bygge muskler mens du går ned i vekt.\nOppvarming (5 min): lett sykkel eller roapparat, deretter 1–2 lette sett av første øvelse (trykk på settnummeret for å merke dem som oppvarming).\n3–4 sett à 8–12 reps. Velg en vekt der de 1–2 siste repetisjonene er tunge, men teknikken fortsatt er god. Hvil 90 sekunder mellom settene.\nProgresjon: Klarer du 12 reps på alle settene, øker du vekten litt neste gang (2,5 kg på stang eller ett hakk opp på manualer). Appen viser hva du løftet sist.\nTeknikk før vekt de første 2–3 ukene. Spør gjerne en PT på senteret om en gjennomgang av knebøy, markløft og benkpress.\nTren før 21:30, så søvnen ikke blir dårligere. Den er fortsatt viktigst.\nHold kostholdet som avtalt: høyt protein, og ingen ekstra kalorier ennå.\nVekta kan stå stille eller gå litt opp de første 1–2 ukene fordi musklene holder på væske. Det er ikke fett, så ikke la det demotivere deg.\nNår du har mer tid: importer «Korte økter – 5 dager».",
+  "workouts": [
+    {
+      "key": "mon",
+      "name": "Mandag – Bein og press",
+      "exercises": [
+        {
+          "id": "stationary-bike",
+          "sets": 1,
+          "reps": "5 min",
+          "rest": 0,
+          "notes": "Oppvarming: lett sykkel eller roapparat. Ta så 1–2 lette sett av første øvelse."
+        },
+        {
+          "id": "back-squat",
+          "sets": 4,
+          "reps": "8-10",
+          "rpe": "8-9",
+          "rest": 90,
+          "notes": "Alternativ: beinpress."
+        },
+        {
+          "id": "barbell-bench-press",
+          "sets": 4,
+          "reps": "8-10",
+          "rpe": "8-9",
+          "rest": 90,
+          "notes": "Alternativ: manualpress."
+        },
+        {
+          "id": "lying-leg-curl",
+          "sets": 3,
+          "reps": "12",
+          "rpe": "8-9",
+          "rest": 90
+        }
+      ]
+    },
+    {
+      "key": "wed",
+      "name": "Onsdag – Rygg og bein",
+      "exercises": [
+        {
+          "id": "stationary-bike",
+          "sets": 1,
+          "reps": "5 min",
+          "rest": 0,
+          "notes": "Oppvarming: lett sykkel eller roapparat. Ta så 1–2 lette sett av første øvelse."
+        },
+        {
+          "id": "lat-pulldown",
+          "sets": 4,
+          "reps": "8-10",
+          "rpe": "8-9",
+          "rest": 90
+        },
+        {
+          "id": "dumbbell-romanian-deadlift",
+          "sets": 3,
+          "reps": "10",
+          "rpe": "8-9",
+          "rest": 90
+        },
+        {
+          "id": "seated-cable-row",
+          "sets": 3,
+          "reps": "10",
+          "rpe": "8-9",
+          "rest": 90
+        }
+      ]
+    },
+    {
+      "key": "fri",
+      "name": "Fredag – Overkropp og bein",
+      "exercises": [
+        {
+          "id": "stationary-bike",
+          "sets": 1,
+          "reps": "5 min",
+          "rest": 0,
+          "notes": "Oppvarming: lett sykkel eller roapparat. Ta så 1–2 lette sett av første øvelse."
+        },
+        {
+          "id": "goblet-squat",
+          "sets": 4,
+          "reps": "10",
+          "rpe": "8-9",
+          "rest": 90,
+          "notes": "Alternativ: hack squat."
+        },
+        {
+          "id": "incline-dumbbell-press",
+          "sets": 3,
+          "reps": "10",
+          "rpe": "8-9",
+          "rest": 90
+        },
+        {
+          "id": "one-arm-dumbbell-row",
+          "sets": 3,
+          "reps": "10",
+          "rpe": "8-9",
+          "rest": 90,
+          "notes": "10 reps per arm."
+        }
+      ]
+    },
+    {
+      "key": "sat",
+      "name": "Lørdag – Gåtur",
+      "exercises": [
+        {
+          "id": "incline-treadmill-walk",
+          "sets": 1,
+          "reps": "30 min",
+          "rest": 0,
+          "notes": "Rask gange, gjerne 8–12 % stigning."
+        }
+      ]
+    }
+  ],
+  "schedule": {
+    "mon": [
+      "mon"
+    ],
+    "wed": [
+      "wed"
+    ],
+    "fri": [
+      "fri"
+    ],
+    "sat": [
+      "sat"
+    ]
+  }
+}

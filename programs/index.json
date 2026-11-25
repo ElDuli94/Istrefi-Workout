@@ -4,5 +4,17 @@
     "name": "Upper/Lower – Fettreduksjon (blokk 1)",
     "date": "2026-11-25",
     "description": "4 dager/uke, 6 uker inkl. deload."
+  },
+  {
+    "file": "korte-okter-5-dager.json",
+    "name": "Korte økter – 5 dager",
+    "date": "2026-11-25",
+    "description": "30 min hver dag, 2–3 øvelser. Man–fre + gåtur lørdag."
+  },
+  {
+    "file": "korte-okter-3-dager.json",
+    "name": "Korte økter – 3 dager",
+    "date": "2026-11-25",
+    "description": "Kortversjon: man/ons/fre + gåtur lørdag."
   }
 ]

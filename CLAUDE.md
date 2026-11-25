@@ -7,7 +7,9 @@ iPhone – aldri i repoet. UI-språk: norsk bokmål. Enheter: kg, cm.
 
 Brukeren vil bruke Claude som PT som lager ukesprogrammer. Kontekst (fra oppstart, nov 2026):
 - Mål: fettreduksjon / definisjon.
-- Oppsett: 4 dager/uke, overkropp/underkropp.
+- Oppsett: Startet med 4 dager/uke overkropp/underkropp. Byttet 25.11.2026 til brukerens foretrukne «Korte økter – 5 dager»
+  (30 min, 2–3 øvelser per dag, man–fre + gåtur lør, hvile søn). Liker korte, raske økter. Nybegynner.
+  Alternativ ved lite tid: «Korte økter – 3 dager».
 - Utstyr: fullt treningssenter, men også hjemme (manualer/strikk) og kroppsvekt.
 - Logger kg, reps og RPE per sett.
 
