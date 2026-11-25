@@ -16,5 +16,11 @@
     "name": "Korte økter – 3 dager",
     "date": "2026-11-25",
     "description": "Kortversjon: man/ons/fre + gåtur lørdag."
+  },
+  {
+    "file": "hjemmetrening-calisthenics-7-dager.json",
+    "name": "Hjemmetrening – Calisthenics 7 dager",
+    "date": "2026-11-25",
+    "description": "Hjemme hver dag, 25–30 min. Kroppsvekt + 2 kg kettlebell."
   }
 ]
