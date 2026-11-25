@@ -1,8 +1,8 @@
 {
   "format": "istrefi-program/1",
   "name": "Hjemmetrening – Calisthenics 7 dager",
-  "description": "Trening hver dag hjemme, 25–30 min. Kroppsvekt + kettlebell 2 kg. Push, bein, core, rygg, helkropp, gåtur, mobilitet.",
-  "notes": "Hjemmetrening hver dag, ca. 25–30 min. Fokus på calisthenics (egen kroppsvekt) + en lett kettlebell (2 kg).\nUkerytme: hardt (man, tir, tor, fre) → lett (ons core, lør gåtur, søn mobilitet). Slik orker du å trene hver dag uten å bli sliten.\nReps: Velg en variant der de siste 2 repetisjonene er tunge. «AMRAP» = så mange gode reps du klarer, stopp 1–2 før du må gi opp.\nProgresjon (calisthenics): Når du klarer toppen av rep-målet på alle sett, gå til en tyngre variant:\n• Push-up: skrå (hender på sofa) → på knærne → vanlig → føtter høyt → archer.\n• Knebøy: vanlig → tempo 3 sek ned → split squat → bulgarsk split squat → pistol mot stol.\n• Pike push-up: hender langt fra føttene → føtter på stol.\n• Roing under bord: knær bøyd → bein strake → føtter på stol.\nKettlebellen på 2 kg er lett – bruk den til skulder- og armøvelser, eller hold den for ekstra vekt med langsomt tempo. Vil du gjøre mer med kettlebell senere, er 8–12 kg en god neste vekt.\nLogg reps i appen, så ser du fremgangen. Bytt øvelse via ⋯ → Bytt øvelse hvis noe ikke passer.",
+  "description": "Trening hver dag hjemme, 25–30 min. Kroppsvekt + kettlebell 2 kg. Ingen møbler, ingen hopp.",
+  "notes": "Hjemmetrening hver dag, ca. 25–30 min. Kroppsvekt + 2 kg kettlebell. Ingen møbler, ingen hopp – alt gjøres på gulvet.\nUkerytme: hardt (man, tir, tor, fre) → lett (ons core, lør gåtur, søn mobilitet).\nReps: velg en variant der de siste 2 repetisjonene er tunge. «AMRAP» = så mange gode reps du klarer, stopp 1–2 før du må gi opp.\nProgresjon (uten møbler, uten hopp): Når du klarer toppen av rep-målet på alle sett, gå til en tyngre variant:\n• Push-up: på knærne → vanlig → 3 sek ned → pause nederst → archer.\n• Knebøy: vanlig → 3 sek ned → med kettlebell → split squat (bakerste fot i gulvet) → pause nederst.\n• Pike push-up: hender nærmere føttene → langsommere ned.\n• Rygg/armer med 2 kg: flere reps, 3 sek ned, 1–2 sek pause på toppen.\nKettlebellen på 2 kg er lett – bruk den til skuldre, armer og rygg med mange reps og langsomt tempo. Vil du gjøre mer med kettlebell senere, er 8–12 kg en god neste vekt.\nBytt øvelse via ⋯ → Bytt øvelse hvis noe ikke passer.",
   "workouts": [
     {
       "key": "mon",
@@ -13,7 +13,7 @@
           "sets": 1,
           "reps": "3 min",
           "rest": 0,
-          "notes": "Oppvarming: 5 rolige reps per side + 20 jumping jacks / marsj på stedet."
+          "notes": "Oppvarming: 5 rolige reps per side + 1 min marsj på stedet."
         },
         {
           "id": "push-up",
@@ -21,7 +21,7 @@
           "reps": "AMRAP (mål 8–15)",
           "rest": 75,
           "rpe": "8",
-          "notes": "For tungt? Bytt til Incline Push-Up (hender på sofa/benk)."
+          "notes": "For tungt? Gjør dem på knærne (Knee Push-Up)."
         },
         {
           "id": "pike-push-up",
@@ -32,12 +32,12 @@
           "notes": "Hofta høyt, hodet mellom armene. Senk hodet mot gulvet."
         },
         {
-          "id": "bench-dip",
+          "id": "single-arm-overhead-dumbbell-extension",
           "sets": 3,
-          "reps": "8-12",
-          "rest": 60,
+          "reps": "15-20",
+          "rest": 45,
           "rpe": "8",
-          "notes": "Hender på kanten av en stol eller sofa. Bøy beina for lettere variant."
+          "notes": "Triceps: kettlebellen bak hodet, én arm om gangen. 3 sek ned."
         },
         {
           "id": "dumbbell-lateral-raise",
@@ -53,7 +53,7 @@
           "reps": "AMRAP",
           "rest": 60,
           "rpe": "8",
-          "notes": "Avslutning. Gjør dem på knærne hvis nødvendig."
+          "notes": "Avslutning. På knærne er helt OK."
         }
       ]
     },
@@ -66,7 +66,7 @@
           "sets": 1,
           "reps": "3 min",
           "rest": 0,
-          "notes": "Oppvarming: 5 rolige reps per side + 20 jumping jacks / marsj på stedet."
+          "notes": "Oppvarming: 5 rolige reps per side + 1 min marsj på stedet."
         },
         {
           "id": "kettlebell-goblet-squat",
@@ -103,10 +103,10 @@
         {
           "id": "bodyweight-calf-raise",
           "sets": 3,
-          "reps": "15-25",
+          "reps": "20-25",
           "rest": 30,
           "rpe": "8",
-          "notes": "På et trappetrinn for større bevegelse."
+          "notes": "På flatt gulv. 2 sek pause på toppen."
         },
         {
           "id": "wall-sit",
@@ -114,7 +114,7 @@
           "reps": "30-60 s",
           "rest": 45,
           "rpe": "8",
-          "notes": "Logg sekunder."
+          "notes": "Rygg mot veggen. Logg sekunder."
         }
       ]
     },
@@ -184,15 +184,23 @@
           "sets": 1,
           "reps": "3 min",
           "rest": 0,
-          "notes": "Oppvarming: 5 rolige reps per side + 20 jumping jacks / marsj på stedet."
+          "notes": "Oppvarming: 5 rolige reps per side + 1 min marsj på stedet."
         },
         {
-          "id": "inverted-row",
+          "id": "kettlebell-row",
           "sets": 4,
-          "reps": "6-12",
-          "rest": 75,
+          "reps": "15-20",
+          "rest": 45,
           "rpe": "8",
-          "notes": "Ligg under et solid bord og trekk brystet opp mot bordkanten. SJEKK at bordet tåler vekten din! Alternativ: Ring Row med håndkle i døra."
+          "notes": "Per arm. Støtt den andre hånden på kneet (ikke på møbler), bøy fram i hofta, trekk albuen bak. 2 sek pause oppe."
+        },
+        {
+          "id": "reverse-snow-angel",
+          "sets": 3,
+          "reps": "10-12",
+          "rest": 45,
+          "rpe": "8",
+          "notes": "Ligg på magen, løft brystet og armene litt, før armene i en stor bue fra hoftene og opp over hodet og tilbake. Rolig."
         },
         {
           "id": "superman",
@@ -219,42 +227,34 @@
           "notes": "2 kg: kjør langsomt, 3 sek ned."
         },
         {
-          "id": "plank-shoulder-tap",
+          "id": "bird-dog",
           "sets": 2,
-          "reps": "20",
-          "rest": 45,
+          "reps": "8-10",
+          "rest": 30,
           "rpe": "8",
-          "notes": "Totalt (10 per hånd). Hold hofta stille."
+          "notes": "Per side. Hold 2 sek strak."
         }
       ]
     },
     {
       "key": "fri",
-      "name": "Fredag – Helkropp sirkel (kondisjon)",
-      "notes": "Sirkel: gjør alle øvelsene etter hverandre med 15–20 sek pause, 60–90 sek pause etter hver runde. 4 runder.",
+      "name": "Fredag – Helkropp sirkel (uten hopp)",
+      "notes": "Sirkel: gjør øvelsene etter hverandre med 15–20 sek pause, og 60–90 sek pause etter hver runde. 4 runder. Ingen hopp – hold et jevnt, raskt tempo i stedet.",
       "exercises": [
         {
           "id": "worlds-greatest-stretch",
           "sets": 1,
           "reps": "3 min",
           "rest": 0,
-          "notes": "Oppvarming: 5 rolige reps per side + 20 jumping jacks / marsj på stedet."
+          "notes": "Oppvarming: 5 rolige reps per side + 1 min marsj på stedet."
         },
         {
-          "id": "burpee",
+          "id": "bodyweight-squat",
           "sets": 4,
-          "reps": "8-10",
+          "reps": "15-20",
           "rest": 20,
           "rpe": "8",
-          "notes": "Uten hopp for lettere variant."
-        },
-        {
-          "id": "jump-squat",
-          "sets": 4,
-          "reps": "12",
-          "rest": 20,
-          "rpe": "8",
-          "notes": "Myk landing. Bytt til vanlig knebøy hvis du har vondt i knærne."
+          "notes": "Raskt opp, kontrollert ned."
         },
         {
           "id": "push-up",
@@ -265,12 +265,28 @@
           "notes": "Knær i bakken er helt OK her."
         },
         {
-          "id": "mountain-climber",
+          "id": "bodyweight-lunge",
           "sets": 4,
-          "reps": "30",
+          "reps": "8",
           "rest": 20,
           "rpe": "8",
-          "notes": "Totalt."
+          "notes": "Per bein, annenhver side."
+        },
+        {
+          "id": "plank-shoulder-tap",
+          "sets": 4,
+          "reps": "20",
+          "rest": 20,
+          "rpe": "8",
+          "notes": "Totalt (10 per hånd). Hold hofta stille."
+        },
+        {
+          "id": "glute-bridge",
+          "sets": 4,
+          "reps": "15",
+          "rest": 20,
+          "rpe": "8",
+          "notes": "Klem setet på toppen."
         },
         {
           "id": "bear-crawl",
@@ -278,7 +294,7 @@
           "reps": "20-30 s",
           "rest": 90,
           "rpe": "8",
-          "notes": "Fram og tilbake. Pause 60–90 sek etter denne (slutten av runden)."
+          "notes": "Fram og tilbake, knærne rett over gulvet. Pause 60–90 sek etter denne (slutten av runden)."
         }
       ]
     },
@@ -299,14 +315,14 @@
     {
       "key": "sun",
       "name": "Søndag – Mobilitet og restitusjon",
-      "notes": "15–20 min rolig tøying. Pust rolig, ingen smerte.",
+      "notes": "15–20 min rolig tøying på gulvet. Pust rolig, ingen smerte.",
       "exercises": [
         {
           "id": "deep-squat-hold",
           "sets": 2,
           "reps": "30-60 s",
           "rest": 15,
-          "notes": "Hold deg i en stol/dørkarm om nødvendig."
+          "notes": "Hold hendene samlet foran brystet og press knærne ut med albuene."
         },
         {
           "id": "pigeon-stretch",
@@ -320,13 +336,7 @@
           "sets": 2,
           "reps": "8",
           "rest": 15,
-          "notes": "Per side."
-        },
-        {
-          "id": "chest-doorway-stretch",
-          "sets": 2,
-          "reps": "30 s",
-          "rest": 15
+          "notes": "Per side, liggende på siden."
         },
         {
           "id": "hip-flexor-stretch",
@@ -339,7 +349,8 @@
           "id": "hamstring-stretch",
           "sets": 2,
           "reps": "45 s",
-          "rest": 0
+          "rest": 0,
+          "notes": "Sittende på gulvet."
         }
       ]
     }

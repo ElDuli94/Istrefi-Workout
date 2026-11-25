@@ -142,7 +142,8 @@ Band Row|bd
 Band Lat Pulldown|bd
 Band Straight-Arm Pulldown|bd
 Kettlebell Row|kb
-Kettlebell Gorilla Row|kb`,
+Kettlebell Gorilla Row|kb
+Reverse Snow Angel|bw`,
 
 skuldre: `Overhead Press|bb
 Push Press|bb

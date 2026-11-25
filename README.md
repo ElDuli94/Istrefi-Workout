@@ -10,7 +10,7 @@ Personlig treningsapp som kjører i nettleseren og legges på hjemskjermen på i
 - **Logging** – kg, reps og RPE per sett. Forrige økts tall vises som forslag; trykk ✓ for å gjenta dem.
   Trykk på settnummeret for å merke et sett som oppvarming.
 - **Hviletimer** – starter automatisk når du huker av et sett (±15 s, lyd når ferdig).
-- **Bibliotek med 445 øvelser** – søk og filtrer på muskelgruppe og utstyr (stang, manualer, kabel, maskin,
+- **Bibliotek med 446 øvelser** – søk og filtrer på muskelgruppe og utstyr (stang, manualer, kabel, maskin,
   kroppsvekt, kettlebell, strikk …). Lag egne øvelser ved behov.
 - **Historikk og rekorder** – estimert 1RM-graf per øvelse, 🏆 nye rekorder etter hver økt.
 - **Progresjonshint** – «⬆️ Øk vekten» når du klarte toppen av rep-målet på alle sett sist, med ny vekt ferdig utfylt.

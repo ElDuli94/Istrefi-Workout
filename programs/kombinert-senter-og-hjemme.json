@@ -2,7 +2,7 @@
   "format": "istrefi-program/1",
   "name": "Kombinert – Senter hverdager + hjemme helg",
   "description": "Man–fre: korte økter på treningssenteret (30 min). Lør: helkropp calisthenics hjemme. Søn: core, mobilitet og gåtur.",
-  "notes": "Treningssenter mandag–fredag (30 min, 2–3 øvelser) + hjemmetrening i helgen. Trening hver dag, men søndag er lett.\nTreningssenteret: 3–4 sett à 8–12 reps, hvil 90 sek. Klarer du toppen av rep-målet på alle sett, øk vekten neste gang (appen sier fra med ⬆️).\nHjemme lørdag: supersett med kroppsvekt + 2 kg kettlebell. Gjør push-ups/knebøy tyngre ved å gå til neste variant (skrå → knær → vanlig → føtter høyt), eller kjør 3 sek ned.\nSøndag: lett core, tøying og gåtur – restitusjon er en del av planen.\nTeknikk før vekt de første ukene. Tren før 21:30 så søvnen ikke blir dårligere.\nKan du ikke dra på senteret en hverdag? Ta den tilsvarende hjemmeøkta fra «Hjemmetrening – Calisthenics 7 dager» i stedet.",
+  "notes": "Treningssenter mandag–fredag (30 min, 2–3 øvelser) + hjemmetrening i helgen. Trening hver dag, men søndag er lett.\nTreningssenteret: 3–4 sett à 8–12 reps, hvil 90 sek. Klarer du toppen av rep-målet på alle sett, øk vekten neste gang (appen sier fra med ⬆️).\nHjemme lørdag: supersett med kroppsvekt + 2 kg kettlebell. Kun gulvet – ingen møbler, ingen hopp. Gjør push-ups/knebøy tyngre ved å gå til neste variant (knær → vanlig → 3 sek ned → pause nederst).\nSøndag: lett core, tøying og gåtur – restitusjon er en del av planen.\nTeknikk før vekt de første ukene. Tren før 21:30 så søvnen ikke blir dårligere.\nKan du ikke dra på senteret en hverdag? Ta den tilsvarende hjemmeøkta fra «Hjemmetrening – Calisthenics 7 dager» i stedet.",
   "workouts": [
     {
       "key": "mon",
@@ -181,14 +181,14 @@
     {
       "key": "sat",
       "name": "Lørdag – Hjemme: Helkropp calisthenics",
-      "notes": "Hjemme, ca. 25–30 min. Supersett: gjør øvelse 1+2 etter hverandre, så pause; deretter 3+4, osv.",
+      "notes": "Hjemme, ca. 25–30 min, kun gulvet. Supersett: gjør øvelse 1+2 etter hverandre, så pause; deretter 3+4, osv.",
       "exercises": [
         {
           "id": "worlds-greatest-stretch",
           "sets": 1,
           "reps": "3 min",
           "rest": 0,
-          "notes": "Oppvarming: 5 rolige reps per side + 20 jumping jacks / marsj på stedet."
+          "notes": "Oppvarming: 5 rolige reps per side + 1 min marsj på stedet."
         },
         {
           "id": "push-up",
@@ -196,15 +196,15 @@
           "reps": "AMRAP (mål 8–15)",
           "rest": 30,
           "rpe": "8",
-          "notes": "Supersett med roing. For tungt? Hender på sofaen."
+          "notes": "Supersett med roing. For tungt? Gjør dem på knærne."
         },
         {
-          "id": "inverted-row",
+          "id": "kettlebell-row",
           "sets": 3,
-          "reps": "6-12",
+          "reps": "15-20",
           "rest": 75,
           "rpe": "8",
-          "notes": "Under et solid bord – sjekk at det tåler vekten din!"
+          "notes": "Per arm. Støtt den andre hånden på kneet. 2 sek pause oppe."
         },
         {
           "id": "kettlebell-goblet-squat",
@@ -228,15 +228,15 @@
           "reps": "6-10",
           "rest": 30,
           "rpe": "8",
-          "notes": "Supersett med Y-T-W."
+          "notes": "Supersett med snow angels."
         },
         {
-          "id": "prone-y-t-w-raise",
+          "id": "reverse-snow-angel",
           "sets": 2,
-          "reps": "6-8",
+          "reps": "10-12",
           "rest": 45,
           "rpe": "8",
-          "notes": "Hver bokstav, med eller uten kettlebellen."
+          "notes": "Ligg på magen, store rolige buer med armene."
         },
         {
           "id": "plank",

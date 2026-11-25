@@ -10,7 +10,9 @@ Brukeren vil bruke Claude som PT som lager ukesprogrammer. Kontekst (fra oppstar
 - Oppsett: Startet med 4 dager/uke overkropp/underkropp. Byttet 25.11.2026 til brukerens foretrukne «Korte økter – 5 dager»
   (30 min, 2–3 øvelser per dag, man–fre + gåtur lør, hvile søn). Liker korte, raske økter. Nybegynner.
   Alternativ ved lite tid: «Korte økter – 3 dager».
-- Utstyr: fullt treningssenter, men også hjemme (manualer/strikk) og kroppsvekt.
+- Utstyr: fullt treningssenter. Hjemme: kun kroppsvekt + én kettlebell på 2 kg.
+- Hjemmetrening (brukerens ønsker): INGEN møbler (ikke dips på stol, roing under bord, sofa/stol/trinn som hjelp),
+  INGEN hopp (ikke burpees, hoppknebøy, box jumps), og ikke mountain climbers. Alt skal gjøres på gulvet.
 - Logger kg, reps og RPE per sett. Kosthold logges i MyFitnessPal; brukeren skriver ev. kalorier/protein/skritt
   inn i appens sjekkliste selv eller oppgir dem direkte i chatten (ingen automatisk Helse-kobling – valgt bort).
 
