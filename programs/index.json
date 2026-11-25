@@ -22,5 +22,11 @@
     "name": "Hjemmetrening – Calisthenics 7 dager",
     "date": "2026-11-25",
     "description": "Hjemme hver dag, 25–30 min. Kroppsvekt + 2 kg kettlebell."
+  },
+  {
+    "file": "kombinert-senter-og-hjemme.json",
+    "name": "Kombinert – Senter hverdager + hjemme helg",
+    "date": "2026-11-25",
+    "description": "Senter man–fre (30 min) + hjemme lør/søn. Trening hver dag."
   }
 ]
