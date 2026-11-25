@@ -4,9 +4,10 @@ import { $, $$, uid, esc, DAYS, DAYS_SHORT, dayIdx, weekStart, fmtDate, fmtDay, 
 import { lineChart } from './charts.js';
 import { ANGLES, addPhotos, photoURL, forgetURL, photosByAngle, weightNear } from './photos.js';
 import { SPRITE, bodyMini, bodyMap } from './muscles.js';
+import { progression, dailyCard, dailyInputs, dailyClass, dailyWeekCard, streak, weekReport, reminderCard, platesHTML } from './extras.js';
 import { importProgram, validateProgram, exportForClaude, makeBackup, restoreBackup, wipeAll } from './data.js';
 
-const APP_VERSION = '1.2.0';
+const APP_VERSION = '1.3.0';
 const ui = { lib: { q: '', g: '', eq: '' }, photoAngle: 'front', cmp: { angle: 'front', a: null, b: null, mode: 'slide', pos: 50 }, exportDays: 28 };
 
 // ================= Router =================
@@ -73,7 +74,8 @@ function vHome() {
   const vol = wk.reduce((a, s) => a + sessionVolume(s), 0);
   const hr = new Date().getHours();
   const hi = hr < 10 ? 'God morgen' : hr < 18 ? 'Hei' : 'God kveld';
-  const doneToday = dayDone(t);
+  const t0 = new Date().setHours(0, 0, 0, 0);
+  const doneTpl = (id) => S.sessions.some((s) => s.templateId === id && s.startedAt >= t0);
   const strip = DAYS_SHORT.map((d, i) => {
     const date = new Date(ws.getTime() + i * 864e5).getDate();
     const has = S.plan.days[i].length > 0;
@@ -82,7 +84,7 @@ function vHome() {
   const lastW = S.body.filter((b) => b.weight != null).at(-1);
   const todayCards = planned.length
     ? planned.map((tp) => `<div class="card hero">
-        <div class="eyebrow">${doneToday ? 'Fullført i dag ✓' : 'Dagens økt'}</div>
+        <div class="eyebrow">${doneTpl(tp.id) ? 'Fullført i dag ✓' : 'Dagens økt'}</div>
         <h2>${esc(tp.name)}</h2>
         <p class="muted">${tp.exercises.length} øvelser · ${tp.exercises.reduce((a, e) => a + (e.sets || 0), 0)} sett</p>
         <div class="chips small">${tp.exercises.slice(0, 6).map((e) => `<span>${esc(ex(e.exId).name)}</span>`).join('')}${tp.exercises.length > 6 ? `<span>+${tp.exercises.length - 6}</span>` : ''}</div>
@@ -96,7 +98,10 @@ function vHome() {
     right: `<a class="icon-btn" href="#/settings" aria-label="Innstillinger">${icon.gear}</a>`,
     html: `
       <div class="week-strip">${strip}</div>
+      ${(() => { const st = streak(); return `<a class="streak" href="#/week/${t === 0 && !wk.length ? -1 : 0}"><span>${st ? `🔥 <b>${st}</b> ${st === 1 ? 'uke' : 'uker'} på rad` : '🔥 Fullfør uka for å starte streak'}</span><span class="muted">Ukerapport ›</span></a>`; })()}
+      ${reminderCard()}
       ${todayCards}
+      ${dailyCard()}
       <div class="stats">
         <div><b>${wk.length}</b><span>økter denne uka</span></div>
         <div><b>${wk.reduce((a, s) => a + sessionSets(s), 0)}</b><span>sett</span></div>
@@ -206,7 +211,9 @@ function workoutView(w, mode) {
   const exs = w.exercises.map((e, i) => {
     const x = ex(e.exId);
     const lp = lastPerformance(e.exId, w.id);
-    const prev = lp?.sets?.filter((s) => !s.warmup);
+    const prog = mode === 'active' ? progression(e, x, lp) : null;
+    let prev = lp?.sets?.filter((s) => !s.warmup);
+    if (prog) prev = prev.map((s) => ({ ...s, kg: prog.kg, reps: prog.low }));
     const h = HEADS[x.type] || HEADS.w;
     const doneN = e.sets.filter((s) => s.done).length;
     return `<div class="card wex ${doneN && doneN === e.sets.length ? 'complete' : ''}">
@@ -215,6 +222,7 @@ function workoutView(w, mode) {
         <button class="icon-btn sm" data-a="exMenu" data-i="${i}" aria-label="Meny">${icon.dots}</button>
       </div>
       ${e.target ? `<div class="target">${esc(targetText(e.target))}${e.target.notes ? `<br><i>${esc(e.target.notes)}</i>` : ''}</div>` : ''}
+      ${prog ? `<div class="prog">⬆️ <b>Øk vekten til ${fmtNum(prog.kg)} kg</b><small>Du klarte ${prog.top} reps på alle settene med ${fmtNum(prog.from)} kg sist. Sikt på ${prog.low}+ reps nå.</small></div>` : ''}
       ${lp ? `<div class="last muted small">Sist (${fmtShort(lp.date)}): ${lp.sets.map((s) => fmtSet(s, x.type)).join(', ')}</div>` : ''}
       <div class="set-head"><span>Sett</span><span>Forrige</span><span>${h[0]}</span><span>${h[1]}</span><span>${h[2]}</span><span></span></div>
       ${e.sets.map((s, j) => setRow(e, i, j, s, prev, x.type)).join('')}
@@ -253,6 +261,10 @@ function vSession(id, q) {
 }
 
 function prsFor(s) {
+  const prs = prList(s);
+  return prs.length ? `<div class="prs"><b>🏆 Nye rekorder</b>${prs.map((p) => `<div>${esc(p)}</div>`).join('')}</div>` : '';
+}
+function prList(s) {
   const prs = [];
   for (const e of s.exercises) {
     const x = ex(e.exId); if (x.type !== 'w') continue;
@@ -263,7 +275,7 @@ function prsFor(s) {
     const prevBest = Math.max(0, ...older.map((z) => e1rm(z.kg, z.reps)));
     if (best > prevBest) prs.push(`${x.name}: ${fmtNum(Math.round(best * 10) / 10)} kg e1RM`);
   }
-  return prs.length ? `<div class="prs"><b>🏆 Nye rekorder</b>${prs.map((p) => `<div>${esc(p)}</div>`).join('')}</div>` : '';
+  return prs;
 }
 
 function getWorkout(el) {
@@ -450,7 +462,7 @@ function vHistory() {
     html += sessionItem(s);
   }
   const total = S.sessions.length;
-  return { title: 'Logg', tab: 'history', html: `<div class="stats"><div><b>${total}</b><span>økter totalt</span></div><div><b>${S.sessions.reduce((a, s) => a + sessionSets(s), 0)}</b><span>sett</span></div><div><b>${fmtNum(Math.round(S.sessions.reduce((a, s) => a + sessionVolume(s), 0) / 100) / 10)} t</b><span>løftet</span></div></div>${html}` };
+  return { title: 'Logg', tab: 'history', right: `<a class="btn sm" href="#/week/0">Ukerapport</a>`, html: `<div class="stats"><div><b>${total}</b><span>økter totalt</span></div><div><b>${S.sessions.reduce((a, s) => a + sessionSets(s), 0)}</b><span>sett</span></div><div><b>${fmtNum(Math.round(S.sessions.reduce((a, s) => a + sessionVolume(s), 0) / 100) / 10)} t</b><span>løftet</span></div></div>${html}` };
 }
 
 // ================= FREMGANG =================
@@ -469,6 +481,7 @@ function vProgress() {
         ${lineChart(ws.map((b) => ({ x: b.date, y: b.weight })), { unit: ' kg' })}
         <button class="btn primary block mt" data-a="bodySheet">⚖️ Logg vekt / mål</button>
       </div>
+      ${dailyWeekCard()}
       ${waist.length ? `<div class="card"><div class="eyebrow">Midjemål</div>${lineChart(waist.map((b) => ({ x: b.date, y: b.waist })), { unit: ' cm' })}</div>` : ''}
       <div class="card">
         <div class="row between"><div class="eyebrow">Progresjonsbilder</div><span class="muted small">${S.photos.length} bilder</span></div>
@@ -527,6 +540,17 @@ function vSettings() {
       </div>
 
       <div class="card">
+        <div class="eyebrow">Daglige mål</div>
+        <p class="muted small">Brukes i sjekklisten på forsiden. Lagres kun på telefonen.</p>
+        <div class="grid2">
+          <label class="lbl">Kalorier (maks)<input data-set="targets.kcal" inputmode="numeric" value="${S.settings.targets?.kcal ?? ''}" placeholder="f.eks. 2000"></label>
+          <label class="lbl">Protein (g)<input data-set="targets.protein" inputmode="numeric" value="${S.settings.targets?.protein ?? ''}" placeholder="f.eks. 170"></label>
+          <label class="lbl">Skritt<input data-set="targets.steps" inputmode="numeric" value="${S.settings.targets?.steps ?? ''}" placeholder="8000"></label>
+          <label class="lbl">Søvn (timer)<input data-set="targets.sleep" inputmode="decimal" value="${S.settings.targets?.sleep != null ? fmtNum(S.settings.targets.sleep) : ''}" placeholder="7,5"></label>
+        </div>
+      </div>
+
+      <div class="card">
         <div class="eyebrow">Importer program fra Claude</div>
         <p class="muted small">Lim inn programmet (JSON) som Claude lager for deg.</p>
         <textarea id="prog-in" rows="5" placeholder='{"format":"istrefi-program/1", "name": "...", "workouts": [...]}'></textarea>
@@ -570,7 +594,12 @@ async function storageInfo() {
   } catch { el.textContent = ''; }
 }
 
-const VIEWS = { home: vHome, plan: vPlan, template: vTemplate, active: vActive, session: vSession, library: vLibrary, exercise: vExercise, history: vHistory, progress: vProgress, compare: vCompare, settings: vSettings };
+function vWeek(arg) {
+  const off = Math.min(0, parseInt(arg, 10) || 0);
+  return { title: 'Ukerapport', back: '#/home', tab: 'history', html: weekReport(off, { sessionItem, prList }) };
+}
+
+const VIEWS = { week: vWeek, home: vHome, plan: vPlan, template: vTemplate, active: vActive, session: vSession, library: vLibrary, exercise: vExercise, history: vHistory, progress: vProgress, compare: vCompare, settings: vSettings };
 
 // ================= Ark (bottom sheet) =================
 function openSheet(html) { $('#sheet-body').innerHTML = html; $('#sheet').hidden = false; document.body.classList.add('noscroll'); }
@@ -699,6 +728,7 @@ const A = {
       <button class="item w100" data-a="wMove" data-i="${i}" data-d="1">${icon.down}<div class="grow">Flytt ned</div></button>
       <button class="item w100" data-a="wSwap" data-i="${i}">⇄<div class="grow">Bytt øvelse</div></button>
       <a class="item w100" href="#/exercise/${x.id}" data-a="closeSheet">📈<div class="grow">Historikk og teknikk</div></a>
+      ${['bb', 'sm', 'tb', 'ez'].includes(x.eq) ? `<button class="item w100" data-a="plates" data-kg="${[...w.exercises[i].sets].reverse().find((s) => s.kg)?.kg ?? lastPerformance(x.id, w.id)?.sets.at(-1)?.kg ?? ''}" data-bar="${x.eq === 'ez' ? 10 : 20}">🏋️<div class="grow">Skivekalkulator</div></button>` : ''}
       <button class="item w100 danger" data-a="wRemove" data-i="${i}">${icon.x}<div class="grow">Fjern fra økta</div></button></div>`);
   },
   wMove: (el) => { const { w, mode } = getWorkout(el); const i = +el.dataset.i, j = i + +el.dataset.d; if (j >= 0 && j < w.exercises.length) [w.exercises[i], w.exercises[j]] = [w.exercises[j], w.exercises[i]]; persistWorkout(w, mode, true); closeSheet(); render(); },
@@ -716,6 +746,20 @@ const A = {
   delSession: async (el) => { const { w } = getWorkout(el); if (!confirm('Slette økta fra loggen permanent?')) return; await store.delSession(w.id); go('#/history'); },
   restAdj: (el) => { if (!rest) return; rest.end += +el.dataset.s * 1000; rest.total = Math.max(rest.total, Math.ceil((rest.end - Date.now()) / 1000)); updRest(); },
   restSkip: stopRest,
+  plates: (el) => {
+    const kg = parseNum(el.dataset.kg), bar = +el.dataset.bar;
+    openSheet(`<div class="sheet-head"><b>Skivekalkulator</b><button class="icon-btn sm" data-a="closeSheet">${icon.x}</button></div>
+      <div class="grid2"><label class="lbl">Totalvekt (kg)<input id="pl-kg" inputmode="decimal" value="${kg != null ? fmtNum(kg) : ''}" placeholder="60"></label>
+      <label class="lbl">Stang<select id="pl-bar">${[20, 15, 10].map((b) => `<option value="${b}" ${b === bar ? 'selected' : ''}>${b} kg</option>`).join('')}</select></label></div>
+      <div id="pl-out" class="mt">${platesHTML(kg, bar)}</div>`);
+  },
+  dailyEdit: (el) => {
+    const d = el.dataset.date;
+    openSheet(`<div class="sheet-head"><b>${fmtDate(new Date(d + 'T12:00').getTime())}</b><button class="icon-btn sm" data-a="closeSheet">${icon.x}</button></div>
+      ${dailyInputs(d)}<button class="btn primary block mt" data-a="closeDaily">Ferdig</button>`);
+  },
+  closeDaily: () => { closeSheet(); render(); },
+  snooze: async () => { S.settings.snoozeUntil = Date.now() + 3 * 864e5; await store.saveSettings(); render(); },
 
   // --- bibliotek ---
   libG: (el) => { ui.lib.g = el.dataset.g; refreshLib(); },
@@ -800,6 +844,7 @@ document.addEventListener('click', (ev) => {
 });
 $('#back').addEventListener('click', () => { if (backTarget === 'history-back' || history.length > 1) history.back(); else go(backTarget); });
 
+let dailyT;
 document.addEventListener('input', (ev) => {
   const t = ev.target;
   if (t.dataset.lib === 'q') { ui.lib.q = t.value; const pos = t.selectionStart; const listEl = $('#pick-list') || $('#lib-list'); const list = libFilter(); listEl.innerHTML = libList(list, $('#pick-list') ? picker.sel : null); const c = $('.count'); if (c && !$('#pick-list')) c.textContent = `${list.length} øvelser`; t.setSelectionRange?.(pos, pos); return; }
@@ -813,6 +858,15 @@ document.addEventListener('input', (ev) => {
     persistWorkout(w, mode);
     return;
   }
+  if (t.dataset.daily) {
+    const d = t.dataset.date, f = t.dataset.daily;
+    const day = (S.daily[d] ||= {});
+    day[f] = parseNum(t.value);
+    t.className = dailyClass(f, day[f]);
+    clearTimeout(dailyT); dailyT = setTimeout(() => store.saveDaily(), 300);
+    return;
+  }
+  if (t.id === 'pl-kg' || t.id === 'pl-bar') { $('#pl-out').innerHTML = platesHTML(parseNum($('#pl-kg').value), +$('#pl-bar').value); return; }
   if (t.dataset.cmp === 'pos') { ui.cmp.pos = +t.value; const cm = $('.cmp'); cm?.style.setProperty('--pos', t.value + '%'); cm?.style.setProperty('--op', 1 - t.value / 100); }
 });
 
@@ -834,6 +888,10 @@ document.addEventListener('change', async (ev) => {
   }
   if (t.dataset.set) {
     const k = t.dataset.set;
+    if (k.startsWith('targets.')) {
+      S.settings.targets = { ...(S.settings.targets || {}), [k.slice(8)]: parseNum(t.value) };
+      await store.saveSettings(); return;
+    }
     S.settings[k] = t.type === 'checkbox' ? t.checked : k === 'restDefault' ? parseInt(t.value, 10) || 90 : t.value.trim();
     await store.saveSettings(); return;
   }
