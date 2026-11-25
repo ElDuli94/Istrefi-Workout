@@ -322,3 +322,10 @@ svg.body.mini { width: 28px; height: 80px; flex: none; }
 .guide li { margin-bottom: 8px; line-height: 1.45; }
 .guide code, .guide pre { background: var(--card2); border-radius: 6px; padding: 1px 5px; font-size: 13px; color: var(--accent); }
 .guide pre { padding: 8px 10px; white-space: pre-wrap; word-break: break-all; margin: 6px 0 0; }
+
+.flow { display: flex; align-items: center; justify-content: space-between; gap: 4px; margin: 12px 0; font-size: 12px; color: var(--muted); text-align: center; }
+.flow span { flex: 1; background: var(--card2); border-radius: 10px; padding: 8px 4px; color: var(--text); font-weight: 650; line-height: 1.25; }
+.flow small { color: var(--muted); font-weight: 500; }
+.hstep { display: flex; gap: 12px; margin-top: 14px; }
+.hstep p { margin: 4px 0 0; line-height: 1.45; }
+.hnum { flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); font-weight: 800; font-size: 14px; display: flex; align-items: center; justify-content: center; }
