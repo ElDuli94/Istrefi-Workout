@@ -158,9 +158,19 @@ export function platesHTML(target, bar) {
 const H_KEYS = { kcal: 'kcal', kalorier: 'kcal', energi: 'kcal', protein: 'protein', skritt: 'steps', steps: 'steps', sovn: 'sleep', søvn: 'sleep', sleep: 'sleep' };
 export function parseHealth(text) {
   const t = String(text || '').trim();
-  // Bare et tall (f.eks. fra «Kopier til utklipp» rett etter «Regn ut Sum») = kalorier.
-  const lone = t.replace(/[\s\u00a0\u202f]|kcal/gi, '').replace(',', '.');
-  if (/^\d+(\.\d+)?$/.test(lone)) { const n = parseFloat(lone); return n > 0 ? { date: null, kcal: Math.round(n) } : null; }
+  // Bare tall, ett per linje (eller skilt med ;): rekkefølge kalorier, protein, skritt, søvn.
+  const parts = t.split(/[;\n|]+/).map((x) => x.replace(/[\s\u00a0\u202f]|kcal|g\b/gi, '').replace(',', '.')).filter(Boolean);
+  if (parts.length && parts.length <= 4 && parts.every((x) => /^\d+(\.\d+)?$/.test(x))) {
+    const keys = ['kcal', 'protein', 'steps', 'sleep'];
+    const out = { date: null };
+    parts.forEach((x, i) => {
+      let v = parseFloat(x); if (!(v > 0)) return;
+      if (keys[i] === 'sleep') { v = v > 1440 ? v / 3600 : v > 24 ? v / 60 : v; out.sleep = Math.round(v * 10) / 10; }
+      else out[keys[i]] = Math.round(v);
+    });
+    if (out.kcal > 15000 || out.protein > 1000) return null; // urimelig: trolig feil skilletegn
+    return ['kcal', 'protein', 'steps', 'sleep'].some((k) => out[k] != null) ? out : null;
+  }
   if (!/kcal|protein|skritt|steps|s[oø]vn|sleep/i.test(t)) return null;
   const out = { date: null };
   for (const m of t.matchAll(/([a-zæøå]+)\s*[=:]\s*([^;\n]+)/gi)) {
