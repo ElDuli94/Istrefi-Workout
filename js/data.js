@@ -2,7 +2,8 @@
 import { S, store, ex, hasEx, rebuildEx, fmtSet, sessionVolume, loadAll } from './store.js';
 import { db, STORES } from './db.js';
 import { slug, GROUPS, EQUIP, EXERCISES } from './exercises.js';
-import { uid, isoDate, fmtDur, DAYS, blobToDataURL, dataURLToBlob } from './util.js';
+import { uid, isoDate, fromIso, fmtDur, DAYS, blobToDataURL, dataURLToBlob } from './util.js';
+const fromIsoSafe = (d) => { try { return fromIso(d); } catch { return 0; } };
 
 const DAY_KEYS = [['mon', 'man', 'monday', 'mandag'], ['tue', 'tir', 'tuesday', 'tirsdag'], ['wed', 'ons', 'wednesday', 'onsdag'],
   ['thu', 'tor', 'thursday', 'torsdag'], ['fri', 'fre', 'friday', 'fredag'], ['sat', 'lør', 'lor', 'saturday', 'lørdag'], ['sun', 'søn', 'son', 'sunday', 'søndag']];
@@ -87,6 +88,16 @@ export function exportForClaude(days = 28) {
     L.push('', '## Kroppsmål');
     for (const b of body) L.push(`${isoDate(b.date)}: ${b.weight != null ? b.weight + ' kg' : ''}${b.waist != null ? ` · midje ${b.waist} cm` : ''}${b.note ? ` · ${b.note}` : ''}`);
   }
+  const dailyDays = Object.keys(S.daily).filter((d) => fromIsoSafe(d) >= since).sort();
+  if (dailyDays.length) {
+    const t = S.settings.targets || {};
+    L.push('', `## Daglig (mål: ${t.kcal ? 'maks ' + t.kcal + ' kcal' : '–'}, ${t.protein ? t.protein + ' g protein' : '–'}, ${t.steps ? t.steps + ' skritt' : '–'}, ${t.sleep ? t.sleep + ' t søvn' : '–'})`);
+    for (const d of dailyDays) {
+      const x = S.daily[d];
+      const parts = [x.kcal != null ? `${x.kcal} kcal` : '', x.protein != null ? `${x.protein} g protein` : '', x.steps != null ? `${x.steps} skritt` : '', x.sleep != null ? `${x.sleep} t søvn` : ''].filter(Boolean);
+      if (parts.length) L.push(`${d}: ${parts.join(' · ')}`);
+    }
+  }
   const sessions = S.sessions.filter((s) => s.startedAt >= since).slice().reverse();
   L.push('', `## Økter (${sessions.length})`);
   for (const s of sessions) {
@@ -109,7 +120,7 @@ export async function makeBackup({ photos = true } = {}) {
   const out = {
     format: 'istrefi-backup/1', exportedAt: new Date().toISOString(),
     templates: S.templates, sessions: S.sessions, body: S.body, customExercises: S.custom,
-    plan: S.plan, settings: S.settings, photos: [],
+    plan: S.plan, settings: S.settings, daily: S.daily, photos: [],
   };
   if (photos) {
     for (const p of S.photos) {
@@ -132,6 +143,7 @@ export async function restoreBackup(text) {
   }
   if (b.plan) await db.put('kv', b.plan, 'plan');
   if (b.settings) await db.put('kv', b.settings, 'settings');
+  if (b.daily) await db.put('kv', b.daily, 'daily');
   await loadAll(); rebuildEx();
 }
 

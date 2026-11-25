@@ -1,11 +1,11 @@
 // Service worker: nyeste versjon fra nett når mulig, lagrede filer når du er offline.
 // Øk VERSION ved hver endring av app-filene.
-const VERSION = 'v1.2.0';
+const VERSION = 'v1.3.0';
 const CACHE = 'istrefi-' + VERSION;
 const SHELL = [
   './', './index.html', './manifest.webmanifest', './css/app.css',
   './js/app.js', './js/store.js', './js/db.js', './js/util.js', './js/exercises.js',
-  './js/charts.js', './js/muscles.js', './js/photos.js', './js/data.js',
+  './js/charts.js', './js/muscles.js', './js/extras.js', './js/photos.js', './js/data.js',
   './icons/apple-touch-icon.png', './icons/icon-192.png', './icons/icon-512.png',
   './programs/index.json', './programs/upper-lower-fettreduksjon.json',
 ];

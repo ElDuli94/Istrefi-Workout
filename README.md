@@ -13,6 +13,11 @@ Personlig treningsapp som kjører i nettleseren og legges på hjemskjermen på i
 - **Bibliotek med 445 øvelser** – søk og filtrer på muskelgruppe og utstyr (stang, manualer, kabel, maskin,
   kroppsvekt, kettlebell, strikk …). Lag egne øvelser ved behov.
 - **Historikk og rekorder** – estimert 1RM-graf per øvelse, 🏆 nye rekorder etter hver økt.
+- **Progresjonshint** – «⬆️ Øk vekten» når du klarte toppen av rep-målet på alle sett sist, med ny vekt ferdig utfylt.
+- **Daglig sjekkliste** – kalorier, protein, skritt og søvn mot egne mål (kun lokalt), med 7-dagersoversikt.
+- **Streak og ukerapport** – uker på rad med fullført plan, ukeoppsummering av trening, vekt og kosthold.
+- **Påminnelse** om progresjonsbilde og midjemål hver 2. uke, og **skivekalkulator** for stangøvelser.
+- **Muskelkart** – fargelagt figur forfra/bakfra for alle øvelser.
 - **Kroppsvekt og midjemål** med grafer.
 - **Progresjonsbilder** – kategorier front/side/rygg, sammenligning med glidebryter eller overtoning.
 - **Claude som PT** – eksporter treningsloggen som tekst til Claude, og importer programmene Claude lager.

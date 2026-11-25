@@ -4,7 +4,8 @@ import { EXERCISES } from './exercises.js';
 export const S = {
   templates: [], sessions: [], body: [], custom: [], photos: [],
   plan: { days: [[], [], [], [], [], [], []], name: '', notes: '', programId: null },
-  settings: { name: '', restDefault: 90, sound: true },
+  settings: { name: '', restDefault: 90, sound: true, targets: { kcal: null, protein: null, steps: 8000, sleep: 7 } },
+  daily: {},
   active: null,
 };
 
@@ -28,6 +29,7 @@ export async function loadAll() {
   const plan = await db.get('kv', 'plan'); if (plan) S.plan = plan;
   S.settings = { ...S.settings, ...((await db.get('kv', 'settings')) || {}) };
   S.active = (await db.get('kv', 'active')) || null;
+  S.daily = (await db.get('kv', 'daily')) || {};
   S.templates.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
   sortSessions(); sortBody(); sortPhotos(); rebuildEx();
 }
@@ -52,6 +54,7 @@ export const store = {
   delPhoto: (id) => { rm('photos', id); return db.del('photos', id); },
   savePlan: () => db.put('kv', S.plan, 'plan'),
   saveSettings: () => db.put('kv', S.settings, 'settings'),
+  saveDaily: () => db.put('kv', S.daily, 'daily'),
   saveActive: () => (S.active ? db.put('kv', S.active, 'active') : db.del('kv', 'active')),
   getKV: (k) => db.get('kv', k),
   setKV: (k, v) => db.put('kv', v, k),
