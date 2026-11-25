@@ -157,7 +157,10 @@ export function platesHTML(target, bar) {
 // Format fra snarveien: "istrefi;dato=2026-11-25;kcal=1890;protein=172;skritt=9500;sovn=7,2"
 const H_KEYS = { kcal: 'kcal', kalorier: 'kcal', energi: 'kcal', protein: 'protein', skritt: 'steps', steps: 'steps', sovn: 'sleep', søvn: 'sleep', sleep: 'sleep' };
 export function parseHealth(text) {
-  const t = String(text || '');
+  const t = String(text || '').trim();
+  // Bare et tall (f.eks. fra «Kopier til utklipp» rett etter «Regn ut Sum») = kalorier.
+  const lone = t.replace(/[\s\u00a0\u202f]|kcal/gi, '').replace(',', '.');
+  if (/^\d+(\.\d+)?$/.test(lone)) { const n = parseFloat(lone); return n > 0 ? { date: null, kcal: Math.round(n) } : null; }
   if (!/kcal|protein|skritt|steps|s[oø]vn|sleep/i.test(t)) return null;
   const out = { date: null };
   for (const m of t.matchAll(/([a-zæøå]+)\s*[=:]\s*([^;\n]+)/gi)) {
