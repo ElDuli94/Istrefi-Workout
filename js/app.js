@@ -6,7 +6,7 @@ import { ANGLES, addPhotos, photoURL, forgetURL, photosByAngle, weightNear } fro
 import { SPRITE, bodyMini, bodyMap } from './muscles.js';
 import { importProgram, validateProgram, exportForClaude, makeBackup, restoreBackup, wipeAll } from './data.js';
 
-const APP_VERSION = '1.1.1';
+const APP_VERSION = '1.2.0';
 const ui = { lib: { q: '', g: '', eq: '' }, photoAngle: 'front', cmp: { angle: 'front', a: null, b: null, mode: 'slide', pos: 50 }, exportDays: 28 };
 
 // ================= Router =================
@@ -879,5 +879,15 @@ async function seedIfEmpty() {
   navigator.storage?.persist?.().catch(() => {});
   document.addEventListener('pointerdown', unlockAudio, { once: true });
   render();
-  if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js').catch(() => {});
+  if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+    // Når en ny versjon tar over: last siden på nytt én gang, så du ser oppdateringen med en gang.
+    const hadController = !!navigator.serviceWorker.controller;
+    let reloaded = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (hadController && !reloaded && !S.active) { reloaded = true; location.reload(); }
+    });
+    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then((reg) => {
+      document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
+    }).catch(() => {});
+  }
 })();

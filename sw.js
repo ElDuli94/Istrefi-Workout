@@ -1,6 +1,6 @@
-// Service worker: gjør appen tilgjengelig offline.
+// Service worker: nyeste versjon fra nett når mulig, lagrede filer når du er offline.
 // Øk VERSION ved hver endring av app-filene.
-const VERSION = 'v1.1.1';
+const VERSION = 'v1.2.0';
 const CACHE = 'istrefi-' + VERSION;
 const SHELL = [
   './', './index.html', './manifest.webmanifest', './css/app.css',
@@ -11,22 +11,33 @@ const SHELL = [
 ];
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
+  // cache: 'reload' = forbi nettleserens HTTP-cache, så vi aldri lagrer gamle filer.
+  e.waitUntil(caches.open(CACHE)
+    .then((c) => c.addAll(SHELL.map((u) => new Request(u, { cache: 'reload' }))))
+    .then(() => self.skipWaiting()));
 });
+
 self.addEventListener('activate', (e) => {
-  e.waitUntil(caches.keys().then((ks) => Promise.all(ks.filter((k) => k !== CACHE).map((k) => caches.delete(k)))).then(() => self.clients.claim()));
+  e.waitUntil(caches.keys()
+    .then((ks) => Promise.all(ks.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+    .then(() => self.clients.claim()));
 });
+
+function fromNetwork(req) {
+  return new Promise((resolve, reject) => {
+    const t = setTimeout(() => reject(new Error('timeout')), 4000);
+    fetch(req, { cache: 'no-cache' }).then((r) => {
+      clearTimeout(t);
+      if (r.ok) { const cp = r.clone(); caches.open(CACHE).then((c) => c.put(req, cp)); }
+      resolve(r);
+    }, (err) => { clearTimeout(t); reject(err); });
+  });
+}
+
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
   if (e.request.method !== 'GET' || url.origin !== location.origin) return;
-  // Programmer: nett først (nye programmer fra Claude), cache som reserve.
-  if (url.pathname.includes('/programs/')) {
-    e.respondWith(fetch(e.request).then((r) => { const cp = r.clone(); caches.open(CACHE).then((c) => c.put(e.request, cp)); return r; }).catch(() => caches.match(e.request, { ignoreSearch: true })));
-    return;
-  }
-  // Resten: cache først, oppdater i bakgrunnen.
-  e.respondWith(caches.match(e.request, { ignoreSearch: true }).then((hit) => {
-    const net = fetch(e.request).then((r) => { if (r.ok) { const cp = r.clone(); caches.open(CACHE).then((c) => c.put(e.request, cp)); } return r; }).catch(() => hit);
-    return hit || net;
-  }));
+  // Nett først (maks 4 sek), deretter lagret kopi.
+  e.respondWith(fromNetwork(e.request).catch(() =>
+    caches.match(e.request, { ignoreSearch: true }).then((hit) => hit || caches.match('./index.html'))));
 });
