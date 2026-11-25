@@ -51,6 +51,7 @@ export function dailyCard() {
   const has = DAILY_FIELDS.some(({ f }) => S.settings.targets?.[f]);
   return `<div class="card daily"><div class="row between"><div class="eyebrow">Dagens sjekkliste</div><a class="small muted" href="#/progress">Siste 7 dager ›</a></div>
     ${dailyInputs(date)}
+    <button class="btn sm block mt-s" data-a="reportPaste">📋 Lim inn fra Claude</button>
     ${has ? '<p class="muted small m0 mt-s">Grå tall er målene dine. Grønn = nådd.</p>' : '<p class="muted small m0 mt-s">Sett målene dine under Innstillinger (tannhjulet).</p>'}</div>`;
 }
 const last7 = () => [...Array(7)].map((_, i) => isoDate(Date.now() - (6 - i) * DAY));
@@ -152,3 +153,22 @@ export function platesHTML(target, bar) {
     ${r.rest ? `<p class="muted small">Går ikke helt opp – ${fmtNum(r.rest)} kg mangler med vanlige skiver.</p>` : ''}`;
 }
 
+// ---------- Kveldsrapport fra Claude ----------
+// Én linje per dag: "ISTREFI dato=2026-11-25 kcal=1890 protein=172 skritt=9512 sovn=7.3 vekt=84.2 midje=90"
+const R_KEYS = { kcal: 'kcal', protein: 'protein', skritt: 'steps', sovn: 'sleep', 'søvn': 'sleep', vekt: 'weight', midje: 'waist' };
+export function parseReport(text) {
+  const days = [];
+  for (const line of String(text || '').split(/\n+/)) {
+    if (!/istrefi/i.test(line)) continue;
+    const d = line.match(/dato\s*=\s*(\d{4}-\d{2}-\d{2})/i);
+    if (!d) continue;
+    const day = { date: d[1] };
+    for (const m of line.matchAll(/([a-zæøå]+)\s*=\s*(-?[\d.,]+)/gi)) {
+      const key = R_KEYS[m[1].toLowerCase()]; if (!key) continue;
+      const v = parseFloat(m[2].replace(',', '.'));
+      if (Number.isFinite(v) && v > 0) day[key] = v;
+    }
+    if (Object.keys(day).length > 1) days.push(day);
+  }
+  return days;
+}

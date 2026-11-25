@@ -4,10 +4,10 @@ import { $, $$, uid, esc, DAYS, DAYS_SHORT, dayIdx, weekStart, fmtDate, fmtDay, 
 import { lineChart } from './charts.js';
 import { ANGLES, addPhotos, photoURL, forgetURL, photosByAngle, weightNear } from './photos.js';
 import { SPRITE, bodyMini, bodyMap } from './muscles.js';
-import { progression, dailyCard, dailyInputs, dailyClass, dailyWeekCard, streak, weekReport, reminderCard, platesHTML } from './extras.js';
+import { parseReport, progression, dailyCard, dailyInputs, dailyClass, dailyWeekCard, streak, weekReport, reminderCard, platesHTML } from './extras.js';
 import { importProgram, validateProgram, exportForClaude, makeBackup, restoreBackup, wipeAll } from './data.js';
 
-const APP_VERSION = '1.5.0';
+const APP_VERSION = '1.6.0';
 const ui = { lib: { q: '', g: '', eq: '' }, photoAngle: 'front', cmp: { angle: 'front', a: null, b: null, mode: 'slide', pos: 50 }, exportDays: 28 };
 
 // ================= Router =================
@@ -759,6 +759,16 @@ const A = {
       ${dailyInputs(d)}<button class="btn primary block mt" data-a="closeDaily">Ferdig</button>`);
   },
   closeDaily: () => { closeSheet(); render(); },
+  reportPaste: async () => {
+    let text = '';
+    try { text = await navigator.clipboard.readText(); } catch {}
+    if (await applyReport(text)) return;
+    openSheet(`<div class="sheet-head"><b>Lim inn fra Claude</b><button class="icon-btn sm" data-a="closeSheet">${icon.x}</button></div>
+      <p class="muted small">Lim inn linjen(e) Claude ga deg (begynner med <code>ISTREFI</code>):</p>
+      <textarea id="rp-in" rows="4" placeholder="ISTREFI dato=… kcal=… protein=…"></textarea>
+      <button class="btn primary block mt" data-a="reportApply">Legg inn</button>`);
+  },
+  reportApply: async () => { if (await applyReport($('#rp-in').value)) closeSheet(); else toast('Fant ingen ISTREFI-linjer i teksten'); },
   snooze: async () => { S.settings.snoozeUntil = Date.now() + 3 * 864e5; await store.saveSettings(); render(); },
 
   // --- bibliotek ---
@@ -833,6 +843,28 @@ const A = {
     await wipeAll(); location.hash = '#/home'; location.reload();
   },
 };
+
+async function applyReport(text) {
+  const days = parseReport(text);
+  if (!days.length) return false;
+  for (const d of days) {
+    const day = (S.daily[d.date] ||= {});
+    for (const k of ['kcal', 'protein', 'steps']) if (d[k] != null) day[k] = Math.round(d[k]);
+    if (d.sleep != null) day.sleep = Math.round(d.sleep * 10) / 10;
+    if (d.weight != null || d.waist != null) {
+      const t = fromIso(d.date);
+      const ex0 = S.body.find((b) => isoDate(b.date) === d.date);
+      const b = ex0 ? { ...ex0 } : { id: uid(), date: t, note: '' };
+      if (d.weight != null) b.weight = Math.round(d.weight * 10) / 10;
+      if (d.waist != null) b.waist = Math.round(d.waist * 10) / 10;
+      await store.putBody(b);
+    }
+  }
+  await store.saveDaily();
+  toast(days.length === 1 ? `${fmtDate(fromIso(days[0].date))} lagt inn ✓` : `${days.length} dager lagt inn ✓`, 3000);
+  render();
+  return true;
+}
 
 // ================= Eventer =================
 document.addEventListener('click', (ev) => {
