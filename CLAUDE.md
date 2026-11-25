@@ -14,6 +14,19 @@ Brukeren vil bruke Claude som PT som lager ukesprogrammer. Kontekst (fra oppstar
 - Logger kg, reps og RPE per sett. Kosthold logges i MyFitnessPal; brukeren skriver ev. kalorier/protein/skritt
   inn i appens sjekkliste selv eller oppgir dem direkte i chatten (ingen automatisk Helse-kobling – valgt bort).
 
+## Kveldsrapport → kode brukeren limer inn
+
+Brukeren sender skjermbilder fra MyFitnessPal/Garmin. Les av tallene og svar med én linje per dag i en kodeblokk:
+
+```
+ISTREFI dato=2026-11-25 kcal=1890 protein=172 skritt=9512 sovn=7.3 vekt=84.2 midje=90
+```
+
+- Felter (alle valgfrie unntatt `dato`): `kcal`, `protein` (g), `skritt`, `sovn` (timer, desimal med punktum), `vekt` (kg), `midje` (cm).
+- Utelat felt du ikke kan lese sikkert. Flere dager = flere linjer.
+- Brukeren kopierer og trykker «📋 Lim inn fra Claude» på forsiden. Data lagres kun på telefonen.
+- ALDRI legg disse tallene i repoet (det er offentlig).
+
 Brukeren limer inn en tekst-eksport av loggen (fra appen) i chatten. Bruk den til å vurdere progresjon
 (e1RM, volum, RPE-trend, kroppsvekt) før du lager neste program.
 

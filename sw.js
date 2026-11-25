@@ -1,6 +1,6 @@
 // Service worker: nyeste versjon fra nett når mulig, lagrede filer når du er offline.
 // Øk VERSION ved hver endring av app-filene.
-const VERSION = 'v1.5.0';
+const VERSION = 'v1.6.0';
 const CACHE = 'istrefi-' + VERSION;
 const SHELL = [
   './', './index.html', './manifest.webmanifest', './css/app.css',
