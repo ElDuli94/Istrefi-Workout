@@ -7,7 +7,7 @@ import { SPRITE, bodyMini, bodyMap } from './muscles.js';
 import { parseHealth, progression, dailyCard, dailyInputs, dailyClass, dailyWeekCard, streak, weekReport, reminderCard, platesHTML } from './extras.js';
 import { importProgram, validateProgram, exportForClaude, makeBackup, restoreBackup, wipeAll } from './data.js';
 
-const APP_VERSION = '1.4.1';
+const APP_VERSION = '1.4.2';
 const ui = { lib: { q: '', g: '', eq: '' }, photoAngle: 'front', cmp: { angle: 'front', a: null, b: null, mode: 'slide', pos: 50 }, exportDays: 28 };
 
 // ================= Router =================
@@ -608,7 +608,7 @@ function vHealth() {
       <div class="card guide"><div class="eyebrow">Del 1 · Bare kalorier først (test at det virker)</div>
         ${step(1, 'Åpne Snarveier-appen', '<p>Den er forhåndsinstallert (ikon med to fargede firkanter). Finner du den ikke: sveip ned på hjemskjermen og søk «Snarveier».</p>')}
         ${step(2, 'Lag ny snarvei', '<p>Trykk <b>+</b> øverst til høyre. Trykk på navnet øverst («Ny snarvei») → <b>Gi nytt navn</b> → skriv <code>Istrefi Helse</code>.</p>')}
-        ${step(3, 'Hent kaloriene', '<p>Trykk i søkefeltet nederst («Søk etter handlinger») og skriv <code>helse</code>. Velg den som heter <b>Finn helseprøver</b> (eng. <i>Find Health Samples</i>).</p><p>I den blå teksten som dukker opp: trykk på <b>Type</b> → bla og velg <b>Kostholdsenergi</b> (eng. <i>Dietary Energy</i>, det er kaloriene fra MyFitnessPal).</p><p>Trykk <b>Legg til filter</b> → sett det til <b>Startdato</b> · <b>er i dag</b>.</p>')}
+        ${step(3, 'Hent kaloriene', '<p>Trykk i søkefeltet nederst («Søk etter handlinger») og skriv <code>helse</code>. Velg den som heter <b>Finn Helse-datapunkter</b> (eng. <i>Find Health Samples</i>).</p><p>I den blå teksten som dukker opp: trykk på <b>Type</b> → bla og velg <b>Kostholdsenergi</b> (eng. <i>Dietary Energy</i>, det er kaloriene fra MyFitnessPal).</p><p>Trykk <b>Legg til filter</b> → sett det til <b>Startdato</b> · <b>er i dag</b>.</p>')}
         ${step(4, 'Legg sammen alle måltidene', '<p>Søk etter <code>statistikk</code> og velg <b>Beregn statistikk</b>. Trykk på det blå ordet og velg <b>Sum</b>.</p>')}
         ${step(5, 'Gi tallet et navn', '<p>Søk etter <code>variabel</code> og velg <b>Angi variabel</b> (eng. <i>Set Variable</i>). Trykk på «Variabelnavn» og skriv <code>kcal</code>.</p>')}
         ${step(6, 'Lag teksten appen forstår', '<p>Søk etter <code>tekst</code> og velg <b>Tekst</b>. Trykk i tekstboksen og skriv:</p><pre>kcal=</pre><p>Rett etter = (uten mellomrom): se på raden <b>over tastaturet</b>. Der står variablene. Trykk på <b>kcal</b>. Den legges inn som en liten farget boble.</p>')}
@@ -626,8 +626,8 @@ function vHealth() {
       </div>
 
       <div class="card guide"><div class="eyebrow">Del 3 · Søvn (valgfritt, litt vanskeligere)</div>
-        ${step(1, 'Finn søvnen', '<p>Legg til <b>Finn helseprøver</b> med Type <b>Søvn</b> (eng. <i>Sleep</i>). Filter: <b>Sluttdato</b> · <b>er i dag</b>. Trykk <b>Legg til filter</b> igjen: <b>Verdi</b> · <b>er ikke</b> · <b>Våken</b>.</p>')}
-        ${step(2, 'Hent lengden', '<p>Søk etter <code>detaljer</code> og velg <b>Hent detaljer om helseprøver</b> → velg <b>Varighet</b>.</p>')}
+        ${step(1, 'Finn søvnen', '<p>Legg til <b>Finn Helse-datapunkter</b> med Type <b>Søvn</b> (eng. <i>Sleep</i>). Filter: <b>Sluttdato</b> · <b>er i dag</b>. Trykk <b>Legg til filter</b> igjen: <b>Verdi</b> · <b>er ikke</b> · <b>Våken</b>.</p>')}
+        ${step(2, 'Hent lengden', '<p>Søk etter <code>detaljer</code> og velg <b>Hent detaljer om Helse-datapunkt</b> → velg <b>Varighet</b>.</p>')}
         ${step(3, 'Summer og gi navn', '<p><b>Beregn statistikk</b> → <b>Sum</b>, så <b>Angi variabel</b> <code>sovn</code>. Dra dem over Tekst-handlingen.</p>')}
         ${step(4, 'Utvid teksten', '<p>Legg til <code>;sovn=</code> + <b>sovn</b>-variabelen bakerst i teksten. Appen skjønner selv om tallet er sekunder, minutter eller timer.</p>')}
       </div>
