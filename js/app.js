@@ -7,7 +7,7 @@ import { SPRITE, bodyMini, bodyMap } from './muscles.js';
 import { parseReport, progression, dailyCard, dailyInputs, dailyClass, dailyWeekCard, streak, weekReport, reminderCard, platesHTML } from './extras.js';
 import { importProgram, validateProgram, exportForClaude, makeBackup, restoreBackup, wipeAll } from './data.js';
 
-const APP_VERSION = '1.6.1';
+const APP_VERSION = '1.6.2';
 const ui = { lib: { q: '', g: '', eq: '' }, photoAngle: 'front', cmp: { angle: 'front', a: null, b: null, mode: 'slide', pos: 50 }, exportDays: 28 };
 
 // ================= Router =================
@@ -756,9 +756,11 @@ const A = {
   dailyEdit: (el) => {
     const d = el.dataset.date;
     openSheet(`<div class="sheet-head"><b>${fmtDate(new Date(d + 'T12:00').getTime())}</b><button class="icon-btn sm" data-a="closeSheet">${icon.x}</button></div>
-      ${dailyInputs(d)}<button class="btn primary block mt" data-a="closeDaily">Ferdig</button>`);
+      ${dailyInputs(d)}<button class="btn primary block mt" data-a="closeDaily">Ferdig</button>
+      ${S.daily[d] ? `<button class="btn block ghost danger mt" data-a="dailyDelete" data-date="${d}">Slett dagen</button>` : ''}`);
   },
   closeDaily: () => { closeSheet(); render(); },
+  dailyDelete: async (el) => { if (!confirm('Slette kalorier, protein, skritt og søvn for denne dagen?')) return; delete S.daily[el.dataset.date]; await store.saveDaily(); closeSheet(); toast('Dagen er slettet'); render(); },
   reportPaste: async () => {
     let text = '';
     try { text = await navigator.clipboard.readText(); } catch {}
