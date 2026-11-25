@@ -15,6 +15,7 @@ Personlig treningsapp som kjører i nettleseren og legges på hjemskjermen på i
 - **Historikk og rekorder** – estimert 1RM-graf per øvelse, 🏆 nye rekorder etter hver økt.
 - **Progresjonshint** – «⬆️ Øk vekten» når du klarte toppen av rep-målet på alle sett sist, med ny vekt ferdig utfylt.
 - **Daglig sjekkliste** – kalorier, protein, skritt og søvn mot egne mål (kun lokalt), med 7-dagersoversikt.
+  Kan fylles ut automatisk fra Apple Helse (MyFitnessPal/Garmin) via en snarvei – oppskrift i appen under «Oppsett».
 - **Streak og ukerapport** – uker på rad med fullført plan, ukeoppsummering av trening, vekt og kosthold.
 - **Påminnelse** om progresjonsbilde og midjemål hver 2. uke, og **skivekalkulator** for stangøvelser.
 - **Muskelkart** – fargelagt figur forfra/bakfra for alle øvelser.
