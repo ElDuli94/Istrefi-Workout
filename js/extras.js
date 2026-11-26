@@ -85,8 +85,23 @@ export function dailyInputs(date) {
       value="${d[f] != null ? fmtNum(d[f]) : ''}" placeholder="${S.settings.targets?.[f] ? fmtNum(S.settings.targets[f]) : '–'}"></label>`).join('')}</div>
     <div class="burn-row"><label>🔥 Forbrent<input data-daily="burned" data-date="${date}" inputmode="numeric" value="${d.burned != null ? fmtNum(d.burned) : ''}" placeholder="${burnFor(date) ? 'ca. ' + burnFor(date).v : 'kcal'}"></label>
       ${(() => { const x = deficitHTML(date); return `<div class="${x.cls}" data-deficit="${date}">${x.html}</div>`; })()}</div>
-    ${(() => { const e = estimateBurn(date); return e && d.burned == null ? `<details class="burn-why"><summary>Slik er forbrenningen beregnet (ca. ${e.total} kcal)</summary>
-      <div>Hvileforbrenning ${e.bmr} kcal${e.fatGuess ? ' (fettprosent ukjent – antar 25 %)' : ''} × 1,15 = ${e.base}<br>+ ${e.steps} skritt = ${e.stepK}<br>+ ${e.minutes} min trening = ${e.trainK}<br><small>Skriv inn Garmin-tallet i feltet hvis du vil bruke det i stedet.</small></div></details>` : ''; })()}`;
+    <details class="burn-why" data-burnwhy="${date}"${S.daily[date]?.burned != null || !estimateBurn(date) ? ' hidden' : ''}>${burnWhyInner(date)}</details>`;
+}
+export function burnWhyInner(date) {
+  const e = estimateBurn(date);
+  if (!e) return '';
+  return `<summary>Slik er forbrenningen beregnet (ca. ${e.total} kcal)</summary>
+      <div>Hvileforbrenning ${e.bmr} kcal${e.fatGuess ? ' (fettprosent ukjent – antar 25 %)' : ''} × 1,15 = ${e.base}<br>+ ${e.steps} skritt = ${e.stepK}<br>+ ${e.minutes} min trening = ${e.trainK}<br><small>Skriv inn Garmin-tallet i feltet hvis du vil bruke det i stedet.</small></div>`;
+}
+// Oppdater forbrent-felt, forklaring og underskudd mens man skriver.
+export function refreshBurn(root, date) {
+  const b = burnFor(date);
+  const inp = root.querySelector(`[data-daily="burned"][data-date="${date}"]`);
+  if (inp) inp.placeholder = b ? 'ca. ' + b.v : 'kcal';
+  const why = root.querySelector(`[data-burnwhy="${date}"]`);
+  if (why) { const open = why.open; why.innerHTML = burnWhyInner(date); why.open = open; why.hidden = S.daily[date]?.burned != null || !estimateBurn(date); }
+  const dEl = root.querySelector(`[data-deficit="${date}"]`);
+  if (dEl) { const x = deficitHTML(date); dEl.className = x.cls; dEl.innerHTML = x.html; }
 }
 export function deficitHTML(date) {
   const x = deficitFor(date);

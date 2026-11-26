@@ -4,10 +4,10 @@ import { $, $$, uid, esc, DAYS, DAYS_SHORT, dayIdx, weekStart, fmtDate, fmtDay, 
 import { lineChart } from './charts.js';
 import { ANGLES, addPhotos, photoURL, forgetURL, photosByAngle, weightNear } from './photos.js';
 import { SPRITE, bodyMini, bodyMap } from './muscles.js';
-import { deficitHTML, COMP, COMP_KEYS, compCard, parseReport, progression, dailyCard, dailyInputs, dailyClass, dailyWeekCard, streak, weekReport, reminderCard, platesHTML } from './extras.js';
+import { refreshBurn, COMP, COMP_KEYS, compCard, parseReport, progression, dailyCard, dailyInputs, dailyClass, dailyWeekCard, streak, weekReport, reminderCard, platesHTML } from './extras.js';
 import { importProgram, validateProgram, exportForClaude, makeBackup, restoreBackup, wipeAll } from './data.js';
 
-const APP_VERSION = '1.10.0';
+const APP_VERSION = '1.10.1';
 const ui = { comp: 'fatPct', lib: { q: '', g: '', eq: '' }, photoAngle: 'front', cmp: { angle: 'front', a: null, b: null, mode: 'slide', pos: 50 }, exportDays: 28 };
 
 // ================= Router =================
@@ -905,7 +905,7 @@ document.addEventListener('input', (ev) => {
     const day = (S.daily[d] ||= {});
     day[f] = parseNum(t.value);
     if (f !== 'burned') t.className = dailyClass(f, day[f]);
-    const dEl = $(`[data-deficit="${d}"]`); if (dEl) { const x = deficitHTML(d); dEl.className = x.cls; dEl.innerHTML = x.html; }
+    refreshBurn(document, d);
     clearTimeout(dailyT); dailyT = setTimeout(() => store.saveDaily(), 300);
     return;
   }
