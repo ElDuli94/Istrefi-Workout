@@ -326,3 +326,21 @@ svg.body.mini { width: 28px; height: 80px; flex: none; }
 
 .more-fields { margin-top: 12px; }
 .more-fields summary { color: var(--accent); font-weight: 600; font-size: 14px; cursor: pointer; }
+
+/* Underskudd */
+.burn-row { display: grid; grid-template-columns: 1fr 1.4fr; gap: 10px; align-items: end; margin-top: 10px; }
+.burn-row label { display: flex; flex-direction: column; font-size: 11px; color: var(--muted); font-weight: 600; }
+.burn-row input { margin-top: 4px; text-align: center; padding: 9px 4px; font-weight: 650; }
+.deficit { min-height: 42px; display: flex; align-items: center; justify-content: center; text-align: center; border-radius: 10px; background: var(--card2); padding: 6px 8px; font-size: 14px; line-height: 1.25; }
+.deficit .muted { font-size: 11px; }
+.deficit.ok { color: var(--ok); } .deficit.warn { color: var(--warm); } .deficit.miss { color: var(--danger); }
+.stats b.warn { color: var(--warm); }
+.defsum { margin: 10px 0; }
+.defbars { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; height: 74px; align-items: end; margin-bottom: 10px; }
+.defbars > div { height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 3px; }
+.defbars i { display: block; width: 70%; min-height: 2px; border-radius: 4px 4px 0 0; background: var(--ok); }
+.defbars i.neg { background: var(--danger); } .defbars i.warn { background: var(--warm); }
+.defbars span { font-size: 10px; color: var(--muted); }
+.daily-grid input, .burn-row input { color: var(--text); }
+.daily-grid input.ok { color: var(--ok); } .daily-grid input.miss { color: var(--warm); }
+.defbars i.none { min-height: 0; height: 0 !important; }

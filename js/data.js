@@ -97,7 +97,7 @@ export function exportForClaude(days = 28) {
     L.push('', `## Daglig (mål: ${t.kcal ? 'maks ' + t.kcal + ' kcal' : '–'}, ${t.protein ? t.protein + ' g protein' : '–'}, ${t.carbs ? 'maks ' + t.carbs + ' g karbo' : '–'}, ${t.fat ? 'maks ' + t.fat + ' g fett' : '–'}, ${t.steps ? t.steps + ' skritt' : '–'})`);
     for (const d of dailyDays) {
       const x = S.daily[d];
-      const parts = [x.kcal != null ? `${x.kcal} kcal` : '', x.protein != null ? `${x.protein} g protein` : '', x.carbs != null ? `${x.carbs} g karbo` : '', x.fat != null ? `${x.fat} g fett` : '', x.steps != null ? `${x.steps} skritt` : ''].filter(Boolean);
+      const parts = [x.kcal != null ? `${x.kcal} kcal` : '', x.protein != null ? `${x.protein} g protein` : '', x.carbs != null ? `${x.carbs} g karbo` : '', x.fat != null ? `${x.fat} g fett` : '', x.steps != null ? `${x.steps} skritt` : '', x.burned != null ? `forbrent ${x.burned} kcal` : '', x.burned != null && x.kcal != null ? `underskudd ${x.burned - x.kcal} kcal` : ''].filter(Boolean);
       if (parts.length) L.push(`${d}: ${parts.join(' · ')}`);
     }
   }
