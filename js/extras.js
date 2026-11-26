@@ -1,6 +1,6 @@
 // Progresjonshint, daglig sjekkliste, streak/ukerapport, påminnelser og skivekalkulator.
 import { S, sessionVolume, sessionSets } from './store.js';
-import { esc, fmtNum, isoDate, fmtShort, weekStart } from './util.js';
+import { esc, fmtNum, isoDate, fromIso, fmtShort, weekStart } from './util.js';
 
 const DAY = 864e5;
 const addDays = (t, n) => { const d = new Date(t); d.setDate(d.getDate() + n); return d.getTime(); };
@@ -42,7 +42,37 @@ export function dailyClass(f, v) {
   return (dir === 'max' ? v <= t : v >= t) ? 'ok' : 'miss';
 }
 // Underskudd = forbrent (Garmin totalt) − spist (MyFitnessPal). Regnes ut, lagres ikke.
-export const deficitOf = (d) => (d && d.burned != null && d.kcal != null ? d.burned - d.kcal : null);
+// Beregnet forbrenning: BMR (Katch-McArdle) × 1,15 + skritt + loggførte økter.
+export function estimateBurn(date) {
+  const end = fromIso(date) + DAY / 2;
+  const w = S.body.filter((b) => b.weight != null && b.date <= end).at(-1) || S.body.find((b) => b.weight != null);
+  if (!w) return null;
+  const fb = S.body.filter((b) => b.fatPct != null && b.date <= end).at(-1) || S.body.find((b) => b.fatPct != null);
+  const fatPct = fb ? fb.fatPct : 25;
+  const lbm = w.weight * (1 - fatPct / 100);
+  const bmr = 370 + 21.6 * lbm;
+  const base = bmr * 1.15;
+  const steps = S.daily[date]?.steps || 0;
+  const stepK = steps * 0.0004 * w.weight; // ca. 0,8 m per skritt × 0,5 kcal/kg/km
+  const start = fromIso(date) - DAY / 2;
+  const minutes = S.sessions.filter((s) => s.startedAt >= start && s.startedAt < end && s.finishedAt)
+    .reduce((a, s) => a + Math.min(120, (s.finishedAt - s.startedAt) / 60000), 0);
+  const trainK = 2.5 * w.weight * (minutes / 60); // styrketrening ≈ 3,5 MET, netto 2,5
+  return { total: Math.round(base + stepK + trainK), bmr: Math.round(bmr), base: Math.round(base), stepK: Math.round(stepK), trainK: Math.round(trainK), minutes: Math.round(minutes), steps, fatGuess: !fb };
+}
+export function burnFor(date) {
+  const d = S.daily[date];
+  if (d?.burned != null) return { v: d.burned, est: false };
+  const e = estimateBurn(date);
+  return e ? { v: e.total, est: true, e } : null;
+}
+export function deficitFor(date) {
+  const d = S.daily[date];
+  if (d?.kcal == null) return null;
+  const b = burnFor(date);
+  return b ? { v: b.v - d.kcal, est: b.est } : null;
+}
+export const deficitOf = (date) => deficitFor(date)?.v ?? null;
 function deficitClass(v) { return v == null ? '' : v < 0 ? 'miss' : v > 1000 ? 'warn' : 'ok'; }
 export function deficitText(v) {
   if (v == null) return '';
@@ -53,12 +83,15 @@ export function dailyInputs(date) {
   return `<div class="daily-grid">${DAILY_FIELDS.map(({ f, label, unit }) => `<label>${label}${unit ? ` <small>${unit}</small>` : ''}
     <input class="${dailyClass(f, d[f])}" data-daily="${f}" data-date="${date}" inputmode="numeric"
       value="${d[f] != null ? fmtNum(d[f]) : ''}" placeholder="${S.settings.targets?.[f] ? fmtNum(S.settings.targets[f]) : '–'}"></label>`).join('')}</div>
-    <div class="burn-row"><label>🔥 Forbrent (Garmin)<input data-daily="burned" data-date="${date}" inputmode="numeric" value="${d.burned != null ? fmtNum(d.burned) : ''}" placeholder="kcal"></label>
-      <div class="deficit ${deficitClass(deficitOf(d))}" data-deficit="${date}">${deficitOf(d) != null ? deficitText(deficitOf(d)) : '<span class="muted">Underskudd vises når kcal og forbrent er fylt inn</span>'}</div></div>`;
+    <div class="burn-row"><label>🔥 Forbrent<input data-daily="burned" data-date="${date}" inputmode="numeric" value="${d.burned != null ? fmtNum(d.burned) : ''}" placeholder="${burnFor(date) ? 'ca. ' + burnFor(date).v : 'kcal'}"></label>
+      ${(() => { const x = deficitHTML(date); return `<div class="${x.cls}" data-deficit="${date}">${x.html}</div>`; })()}</div>
+    ${(() => { const e = estimateBurn(date); return e && d.burned == null ? `<details class="burn-why"><summary>Slik er forbrenningen beregnet (ca. ${e.total} kcal)</summary>
+      <div>Hvileforbrenning ${e.bmr} kcal${e.fatGuess ? ' (fettprosent ukjent – antar 25 %)' : ''} × 1,15 = ${e.base}<br>+ ${e.steps} skritt = ${e.stepK}<br>+ ${e.minutes} min trening = ${e.trainK}<br><small>Skriv inn Garmin-tallet i feltet hvis du vil bruke det i stedet.</small></div></details>` : ''; })()}`;
 }
 export function deficitHTML(date) {
-  const v = deficitOf(S.daily[date]);
-  return { cls: 'deficit ' + deficitClass(v), html: v != null ? deficitText(v) : '<span class="muted">Underskudd vises når kcal og forbrent er fylt inn</span>' };
+  const x = deficitFor(date);
+  const empty = estimateBurn(date) ? 'Underskudd vises når kalorier er fylt inn' : 'Legg inn vekt under Fremgang for å beregne forbrenning';
+  return { cls: 'deficit ' + deficitClass(x?.v ?? null), html: x ? deficitText(x.v) + (x.est ? '<small>beregnet</small>' : '<small>fra Garmin</small>') : `<span class="muted">${empty}</span>` };
 }
 export function dailyCard() {
   const date = isoDate();
@@ -69,12 +102,12 @@ export function dailyCard() {
     ${has ? '<p class="muted small m0 mt-s">Grå tall er målene dine. Grønn = nådd.</p>' : '<p class="muted small m0 mt-s">Sett målene dine under Innstillinger (tannhjulet).</p>'}</div>`;
 }
 export function deficitSummary(days) {
-  const defs = days.map((d) => ({ d, v: deficitOf(S.daily[d]) })).filter((x) => x.v != null);
+  const defs = days.map((d) => ({ d, v: deficitOf(d) })).filter((x) => x.v != null);
   if (!defs.length) return '';
   const sum = defs.reduce((a, x) => a + x.v, 0), mean = sum / defs.length;
   const kg = sum / 7700;
   return `<div class="defsum">
-    <div class="defbars">${days.map((d) => { const v = deficitOf(S.daily[d]); const h = v == null ? 0 : Math.min(100, Math.abs(v) / 10); return `<div title="${d}"><i class="${v == null ? 'none' : v < 0 ? 'neg' : v > 1000 ? 'warn' : ''}" style="height:${h}%"></i><span>${new Date(d + 'T12:00').getDate()}</span></div>`; }).join('')}</div>
+    <div class="defbars">${days.map((d) => { const v = deficitOf(d); const h = v == null ? 0 : Math.min(100, Math.abs(v) / 10); return `<div title="${d}"><i class="${v == null ? 'none' : v < 0 ? 'neg' : v > 1000 ? 'warn' : ''}" style="height:${h}%"></i><span>${new Date(d + 'T12:00').getDate()}</span></div>`; }).join('')}</div>
     <div class="stats in m0"><div><b class="${deficitClass(mean)}">${Math.round(mean)}</b><span>kcal underskudd/dag</span></div><div><b>${Math.round(sum)}</b><span>kcal totalt (${defs.length} d)</span></div><div><b>${kg >= 0 ? '≈ ' + fmtNum(Math.round(kg * 100) / 100) : '+' + fmtNum(Math.round(-kg * 100) / 100)}</b><span>kg fett ${kg >= 0 ? 'tapt' : 'lagt på'}</span></div></div>
   </div>`;
 }

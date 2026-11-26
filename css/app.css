@@ -344,3 +344,8 @@ svg.body.mini { width: 28px; height: 80px; flex: none; }
 .daily-grid input, .burn-row input { color: var(--text); }
 .daily-grid input.ok { color: var(--ok); } .daily-grid input.miss { color: var(--warm); }
 .defbars i.none { min-height: 0; height: 0 !important; }
+.deficit { flex-direction: column; gap: 1px; }
+.deficit small { font-size: 10px; color: var(--muted); font-weight: 500; }
+.burn-why { margin-top: 8px; font-size: 12px; color: var(--muted); }
+.burn-why summary { cursor: pointer; }
+.burn-why div { margin-top: 6px; line-height: 1.5; background: var(--card2); border-radius: 8px; padding: 8px 10px; }
