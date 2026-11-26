@@ -4,7 +4,7 @@ import { EXERCISES } from './exercises.js';
 export const S = {
   templates: [], sessions: [], body: [], custom: [], photos: [],
   plan: { days: [[], [], [], [], [], [], []], name: '', notes: '', programId: null },
-  settings: { name: '', restDefault: 90, sound: true, targets: { kcal: null, protein: null, steps: 8000, sleep: 7 } },
+  settings: { name: '', restDefault: 90, sound: true, targets: { kcal: null, protein: null, carbs: null, fat: null, steps: 8000 } },
   daily: {},
   active: null,
 };
