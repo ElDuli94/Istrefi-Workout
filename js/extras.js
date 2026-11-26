@@ -31,8 +31,9 @@ export function progression(e, x, lp) {
 export const DAILY_FIELDS = [
   { f: 'kcal', label: 'Kalorier', unit: 'kcal', dir: 'max' },
   { f: 'protein', label: 'Protein', unit: 'g', dir: 'min' },
+  { f: 'carbs', label: 'Karbo', unit: 'g', dir: 'max' },
+  { f: 'fat', label: 'Fett', unit: 'g', dir: 'max' },
   { f: 'steps', label: 'Skritt', unit: '', dir: 'min' },
-  { f: 'sleep', label: 'Søvn', unit: 't', dir: 'min' },
 ];
 export function dailyClass(f, v) {
   const t = S.settings.targets?.[f];
@@ -42,8 +43,8 @@ export function dailyClass(f, v) {
 }
 export function dailyInputs(date) {
   const d = S.daily[date] || {};
-  return `<div class="grid4 daily-grid">${DAILY_FIELDS.map(({ f, label, unit }) => `<label>${label}${unit ? ` <small>${unit}</small>` : ''}
-    <input class="${dailyClass(f, d[f])}" data-daily="${f}" data-date="${date}" inputmode="${f === 'sleep' ? 'decimal' : 'numeric'}"
+  return `<div class="daily-grid">${DAILY_FIELDS.map(({ f, label, unit }) => `<label>${label}${unit ? ` <small>${unit}</small>` : ''}
+    <input class="${dailyClass(f, d[f])}" data-daily="${f}" data-date="${date}" inputmode="numeric"
       value="${d[f] != null ? fmtNum(d[f]) : ''}" placeholder="${S.settings.targets?.[f] ? fmtNum(S.settings.targets[f]) : '–'}"></label>`).join('')}</div>`;
 }
 export function dailyCard() {
@@ -58,11 +59,11 @@ const last7 = () => [...Array(7)].map((_, i) => isoDate(Date.now() - (6 - i) * D
 export function dailyWeekCard() {
   const days = last7();
   const val = (date, f) => S.daily[date]?.[f];
-  const fmt = (f, v) => (v == null ? '–' : f === 'steps' ? Math.round(v).toLocaleString('nb-NO') : fmtNum(f === 'sleep' ? Math.round(v * 10) / 10 : Math.round(v)));
+  const fmt = (f, v) => (v == null ? '–' : f === 'steps' ? Math.round(v).toLocaleString('nb-NO') : fmtNum(Math.round(v)));
   const rows = days.map((d) => `<tr data-a="dailyEdit" data-date="${d}"><td>${fmtShort(new Date(d + 'T12:00').getTime())}</td>${DAILY_FIELDS.map(({ f }) => `<td class="${dailyClass(f, val(d, f))}">${fmt(f, val(d, f))}</td>`).join('')}</tr>`).join('');
   const avgRow = DAILY_FIELDS.map(({ f }) => { const a = avg(days.map((d) => val(d, f)).filter((v) => v != null)); return `<td class="${dailyClass(f, a)}"><b>${fmt(f, a)}</b></td>`; }).join('');
-  return `<div class="card"><div class="eyebrow">Kosthold, skritt og søvn – 7 dager</div>
-    <table class="dtable"><thead><tr><th></th><th>kcal</th><th>Prot.</th><th>Skritt</th><th>Søvn</th></tr></thead>
+  return `<div class="card"><div class="eyebrow">Kosthold og skritt – 7 dager</div>
+    <table class="dtable"><thead><tr><th></th><th>kcal</th><th>Prot.</th><th>Karbo</th><th>Fett</th><th>Skritt</th></tr></thead>
     <tbody>${rows}</tbody><tfoot><tr><td>Snitt</td>${avgRow}</tr></tfoot></table>
     <p class="muted small m0">Trykk på en dag for å fylle inn eller rette.</p></div>`;
 }
@@ -115,7 +116,8 @@ export function weekReport(off, { sessionItem, prList }) {
       ${wNow != null ? `<div class="bigval">${n1(wNow, 1)} <small>kg snitt</small></div>${wPrev != null ? `<span class="delta ${wNow - wPrev <= 0 ? 'good' : ''}">${wNow - wPrev > 0 ? '+' : ''}${n1(wNow - wPrev, 1)} kg mot uka før</span>` : ''}` : '<p class="muted small m0">Ingen veiinger denne uka.</p>'}
     </div>
     <div class="card"><div class="eyebrow">Daglig snitt (${logged} av 7 dager logget)</div>
-      <div class="stats two in m0">${dl('kcal', 'kcal')}${dl('protein', 'g protein')}${dl('steps', 'skritt')}${dl('sleep', 'timer søvn', 1)}</div>
+      <div class="stats in m0">${dl('kcal', 'kcal')}${dl('protein', 'g protein')}${dl('steps', 'skritt')}</div>
+      <div class="stats two in m0 mt-s">${dl('carbs', 'g karbo')}${dl('fat', 'g fett')}</div>
     </div>
     ${prs.length ? `<div class="card prs"><b>🏆 Rekorder</b>${prs.map((p) => `<div>${esc(p)}</div>`).join('')}</div>` : ''}
     ${sess.length ? `<h3 class="sec">Økter</h3>${sess.map(sessionItem).join('')}` : ''}`;
@@ -154,8 +156,8 @@ export function platesHTML(target, bar) {
 }
 
 // ---------- Kveldsrapport fra Claude ----------
-// Én linje per dag: "ISTREFI dato=2026-11-25 kcal=1890 protein=172 skritt=9512 sovn=7.3 vekt=84.2 midje=90"
-const R_KEYS = { kcal: 'kcal', protein: 'protein', skritt: 'steps', sovn: 'sleep', 'søvn': 'sleep', vekt: 'weight', midje: 'waist' };
+// Én linje per dag: "ISTREFI dato=2026-11-25 kcal=1890 protein=172 karbo=160 fett=60 skritt=9512 vekt=84.2 midje=90"
+const R_KEYS = { kcal: 'kcal', protein: 'protein', karbo: 'carbs', karbohydrater: 'carbs', fett: 'fat', skritt: 'steps', sovn: 'sleep', 'søvn': 'sleep', vekt: 'weight', midje: 'waist' };
 export function parseReport(text) {
   const days = [];
   // Del ved hvert «ISTREFI» – linjeskift kan forsvinne når koden kopieres på iPhone.

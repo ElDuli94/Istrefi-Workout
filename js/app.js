@@ -7,7 +7,7 @@ import { SPRITE, bodyMini, bodyMap } from './muscles.js';
 import { parseReport, progression, dailyCard, dailyInputs, dailyClass, dailyWeekCard, streak, weekReport, reminderCard, platesHTML } from './extras.js';
 import { importProgram, validateProgram, exportForClaude, makeBackup, restoreBackup, wipeAll } from './data.js';
 
-const APP_VERSION = '1.6.3';
+const APP_VERSION = '1.7.0';
 const ui = { lib: { q: '', g: '', eq: '' }, photoAngle: 'front', cmp: { angle: 'front', a: null, b: null, mode: 'slide', pos: 50 }, exportDays: 28 };
 
 // ================= Router =================
@@ -546,7 +546,8 @@ function vSettings() {
           <label class="lbl">Kalorier (maks)<input data-set="targets.kcal" inputmode="numeric" value="${S.settings.targets?.kcal ?? ''}" placeholder="f.eks. 2000"></label>
           <label class="lbl">Protein (g)<input data-set="targets.protein" inputmode="numeric" value="${S.settings.targets?.protein ?? ''}" placeholder="f.eks. 170"></label>
           <label class="lbl">Skritt<input data-set="targets.steps" inputmode="numeric" value="${S.settings.targets?.steps ?? ''}" placeholder="8000"></label>
-          <label class="lbl">Søvn (timer)<input data-set="targets.sleep" inputmode="decimal" value="${S.settings.targets?.sleep != null ? fmtNum(S.settings.targets.sleep) : ''}" placeholder="7,5"></label>
+          <label class="lbl">Karbo (g, maks)<input data-set="targets.carbs" inputmode="numeric" value="${S.settings.targets?.carbs ?? ''}" placeholder="f.eks. 175"></label>
+          <label class="lbl">Fett (g, maks)<input data-set="targets.fat" inputmode="numeric" value="${S.settings.targets?.fat ?? ''}" placeholder="f.eks. 67"></label>
         </div>
       </div>
 
@@ -760,7 +761,7 @@ const A = {
       ${S.daily[d] ? `<button class="btn block ghost danger mt" data-a="dailyDelete" data-date="${d}">Slett dagen</button>` : ''}`);
   },
   closeDaily: () => { closeSheet(); render(); },
-  dailyDelete: async (el) => { if (!confirm('Slette kalorier, protein, skritt og søvn for denne dagen?')) return; delete S.daily[el.dataset.date]; await store.saveDaily(); closeSheet(); toast('Dagen er slettet'); render(); },
+  dailyDelete: async (el) => { if (!confirm('Slette kalorier, protein, karbo, fett og skritt for denne dagen?')) return; delete S.daily[el.dataset.date]; await store.saveDaily(); closeSheet(); toast('Dagen er slettet'); render(); },
   reportPaste: async () => {
     let text = '';
     try { text = await navigator.clipboard.readText(); } catch {}
@@ -851,7 +852,7 @@ async function applyReport(text) {
   if (!days.length) return false;
   for (const d of days) {
     const day = (S.daily[d.date] ||= {});
-    for (const k of ['kcal', 'protein', 'steps']) if (d[k] != null) day[k] = Math.round(d[k]);
+    for (const k of ['kcal', 'protein', 'carbs', 'fat', 'steps']) if (d[k] != null) day[k] = Math.round(d[k]);
     if (d.sleep != null) day.sleep = Math.round(d.sleep * 10) / 10;
     if (d.weight != null || d.waist != null) {
       const t = fromIso(d.date);

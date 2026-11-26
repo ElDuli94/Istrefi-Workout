@@ -91,10 +91,10 @@ export function exportForClaude(days = 28) {
   const dailyDays = Object.keys(S.daily).filter((d) => fromIsoSafe(d) >= since).sort();
   if (dailyDays.length) {
     const t = S.settings.targets || {};
-    L.push('', `## Daglig (mål: ${t.kcal ? 'maks ' + t.kcal + ' kcal' : '–'}, ${t.protein ? t.protein + ' g protein' : '–'}, ${t.steps ? t.steps + ' skritt' : '–'}, ${t.sleep ? t.sleep + ' t søvn' : '–'})`);
+    L.push('', `## Daglig (mål: ${t.kcal ? 'maks ' + t.kcal + ' kcal' : '–'}, ${t.protein ? t.protein + ' g protein' : '–'}, ${t.carbs ? 'maks ' + t.carbs + ' g karbo' : '–'}, ${t.fat ? 'maks ' + t.fat + ' g fett' : '–'}, ${t.steps ? t.steps + ' skritt' : '–'})`);
     for (const d of dailyDays) {
       const x = S.daily[d];
-      const parts = [x.kcal != null ? `${x.kcal} kcal` : '', x.protein != null ? `${x.protein} g protein` : '', x.steps != null ? `${x.steps} skritt` : '', x.sleep != null ? `${x.sleep} t søvn` : ''].filter(Boolean);
+      const parts = [x.kcal != null ? `${x.kcal} kcal` : '', x.protein != null ? `${x.protein} g protein` : '', x.carbs != null ? `${x.carbs} g karbo` : '', x.fat != null ? `${x.fat} g fett` : '', x.steps != null ? `${x.steps} skritt` : ''].filter(Boolean);
       if (parts.length) L.push(`${d}: ${parts.join(' · ')}`);
     }
   }
