@@ -7,7 +7,7 @@ import { SPRITE, bodyMini, bodyMap } from './muscles.js';
 import { refreshBurn, COMP, COMP_KEYS, compCard, parseReport, progression, dailyCard, dailyInputs, dailyClass, dailyWeekCard, streak, weekReport, reminderCard, platesHTML } from './extras.js';
 import { importProgram, validateProgram, exportForClaude, makeBackup, restoreBackup, wipeAll } from './data.js';
 
-const APP_VERSION = '1.10.1';
+const APP_VERSION = '1.11.0';
 const ui = { comp: 'fatPct', lib: { q: '', g: '', eq: '' }, photoAngle: 'front', cmp: { angle: 'front', a: null, b: null, mode: 'slide', pos: 50 }, exportDays: 28 };
 
 // ================= Router =================
@@ -541,6 +541,17 @@ function vSettings() {
       </div>
 
       <div class="card">
+        <div class="eyebrow">Profil for forbrenning</div>
+        <p class="muted small">Brukes til å beregne hvor mye du forbrenner. Vekt og fettprosent hentes fra siste veiing. Lagres kun på telefonen.</p>
+        <div class="grid2">
+          <label class="lbl">Alder<input data-set="profile.age" inputmode="numeric" value="${S.settings.profile?.age ?? ''}" placeholder="år"></label>
+          <label class="lbl">Høyde (cm)<input data-set="profile.height" inputmode="numeric" value="${S.settings.profile?.height ?? ''}" placeholder="cm"></label>
+          <label class="lbl">Kjønn (for formelen)<select data-set="profile.sex"><option value="">Velg</option><option value="m" ${S.settings.profile?.sex === 'm' ? 'selected' : ''}>Mann</option><option value="f" ${S.settings.profile?.sex === 'f' ? 'selected' : ''}>Kvinne</option></select></label>
+          <label class="lbl">Jobb / hverdag<select data-set="profile.job">${[['sit', 'Stillesittende'], ['light', 'Lett aktiv (mye stående)'], ['active', 'Fysisk krevende']].map(([k, v]) => `<option value="${k}" ${(S.settings.profile?.job || 'sit') === k ? 'selected' : ''}>${v}</option>`).join('')}</select></label>
+        </div>
+      </div>
+
+      <div class="card">
         <div class="eyebrow">Daglige mål</div>
         <p class="muted small">Brukes i sjekklisten på forsiden. Lagres kun på telefonen.</p>
         <div class="grid2">
@@ -931,6 +942,11 @@ document.addEventListener('change', async (ev) => {
   }
   if (t.dataset.set) {
     const k = t.dataset.set;
+    if (k.startsWith('profile.')) {
+      const f = k.slice(8);
+      S.settings.profile = { ...(S.settings.profile || {}), [f]: f === 'sex' || f === 'job' ? t.value : parseNum(t.value) };
+      await store.saveSettings(); return;
+    }
     if (k.startsWith('targets.')) {
       S.settings.targets = { ...(S.settings.targets || {}), [k.slice(8)]: parseNum(t.value) };
       await store.saveSettings(); return;

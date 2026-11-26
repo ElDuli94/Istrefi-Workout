@@ -27,7 +27,8 @@ ISTREFI dato=2026-11-26 vekt=83.2 fettprosent=22.0 muskel=34.4 bmi=25.7 benmasse
 
 - Felter (alle valgfrie unntatt `dato`): `kcal`, `protein` (g), `karbo` (g), `fett` (g), `skritt`, `vekt` (kg), `midje` (cm),
   `forbrent` (valgfritt: Garmin «Totalt»). Uten `forbrent` BEREGNER appen forbrenningen selv
-  (Katch-McArdle BMR fra siste vekt/fett% × 1,15 + skritt × 0,0004 × vekt + 2,5 × vekt × treningstimer fra loggede økter)
+  (BMR = snitt av Katch-McArdle [siste vekt/fett%] og Mifflin-St Jeor [alder/høyde/kjønn fra Innstillinger → Profil, kun lokalt]
+  × aktivitetsfaktor for jobb [stillesittende 1,1 / lett 1,2 / fysisk 1,35] + skritt × 0,0004 × vekt + 2,5 × vekt × treningstimer)
   og viser underskudd = forbrent − kcal. Brukeren foretrekker beregningen (26.11.2026).
   og fra Garmin-vekta: `fettprosent` (%), `muskel` (kg), `bmi`, `benmasse` (kg), `vann` (%). NB: `fett` = gram fett i kosten, `fettprosent` = kroppsfett.
   Søvn følges ikke lenger (brukerens valg 26.11.2026) – ikke ta med `sovn`.

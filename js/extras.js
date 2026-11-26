@@ -48,17 +48,21 @@ export function estimateBurn(date) {
   const w = S.body.filter((b) => b.weight != null && b.date <= end).at(-1) || S.body.find((b) => b.weight != null);
   if (!w) return null;
   const fb = S.body.filter((b) => b.fatPct != null && b.date <= end).at(-1) || S.body.find((b) => b.fatPct != null);
-  const fatPct = fb ? fb.fatPct : 25;
-  const lbm = w.weight * (1 - fatPct / 100);
-  const bmr = 370 + 21.6 * lbm;
-  const base = bmr * 1.15;
+  const pr = S.settings.profile || {};
+  // Katch-McArdle (fettfri masse) og Mifflin-St Jeor (alder/høyde/kjønn). Snitt når begge finnes.
+  const katch = fb ? 370 + 21.6 * w.weight * (1 - fb.fatPct / 100) : null;
+  const mifflin = pr.age && pr.height && (pr.sex === 'm' || pr.sex === 'f') ? 10 * w.weight + 6.25 * pr.height - 5 * pr.age + (pr.sex === 'm' ? 5 : -161) : null;
+  const parts = [katch, mifflin].filter((v) => v != null);
+  const bmr = parts.length ? parts.reduce((a, b) => a + b, 0) / parts.length : 370 + 21.6 * w.weight * 0.75;
+  const factor = { sit: 1.1, light: 1.2, active: 1.35 }[pr.job || 'sit'];
+  const base = bmr * factor;
   const steps = S.daily[date]?.steps || 0;
   const stepK = steps * 0.0004 * w.weight; // ca. 0,8 m per skritt × 0,5 kcal/kg/km
   const start = fromIso(date) - DAY / 2;
   const minutes = S.sessions.filter((s) => s.startedAt >= start && s.startedAt < end && s.finishedAt)
     .reduce((a, s) => a + Math.min(120, (s.finishedAt - s.startedAt) / 60000), 0);
   const trainK = 2.5 * w.weight * (minutes / 60); // styrketrening ≈ 3,5 MET, netto 2,5
-  return { total: Math.round(base + stepK + trainK), bmr: Math.round(bmr), base: Math.round(base), stepK: Math.round(stepK), trainK: Math.round(trainK), minutes: Math.round(minutes), steps, fatGuess: !fb };
+  return { total: Math.round(base + stepK + trainK), bmr: Math.round(bmr), katch: katch && Math.round(katch), mifflin: mifflin && Math.round(mifflin), factor, job: pr.job || 'sit', base: Math.round(base), stepK: Math.round(stepK), trainK: Math.round(trainK), minutes: Math.round(minutes), steps, guess: !fb && !mifflin, noProfile: !mifflin };
 }
 export function burnFor(date) {
   const d = S.daily[date];
@@ -91,7 +95,7 @@ export function burnWhyInner(date) {
   const e = estimateBurn(date);
   if (!e) return '';
   return `<summary>Slik er forbrenningen beregnet (ca. ${e.total} kcal)</summary>
-      <div>Hvileforbrenning ${e.bmr} kcal${e.fatGuess ? ' (fettprosent ukjent – antar 25 %)' : ''} × 1,15 = ${e.base}<br>+ ${e.steps} skritt = ${e.stepK}<br>+ ${e.minutes} min trening = ${e.trainK}<br><small>Skriv inn Garmin-tallet i feltet hvis du vil bruke det i stedet.</small></div>`;
+      <div>Hvileforbrenning ${e.bmr} kcal${e.katch && e.mifflin ? ` <small>(snitt av ${e.katch} fra fettprosent og ${e.mifflin} fra alder/høyde)</small>` : e.guess ? ' <small>(grovt anslag – legg inn fettprosent eller profil)</small>' : ''}<br>× ${String(e.factor).replace('.', ',')} ${{ sit: 'stillesittende jobb', light: 'lett aktiv hverdag', active: 'fysisk jobb' }[e.job]} = ${e.base}<br>+ ${e.steps} skritt = ${e.stepK}<br>+ ${e.minutes} min trening = ${e.trainK}<br>${e.noProfile ? '<small>Tips: legg inn alder, høyde og kjønn under Innstillinger for et bedre anslag.</small><br>' : ''}<small>Skriv inn Garmin-tallet i feltet hvis du vil bruke det i stedet.</small></div>`;
 }
 // Oppdater forbrent-felt, forklaring og underskudd mens man skriver.
 export function refreshBurn(root, date) {
