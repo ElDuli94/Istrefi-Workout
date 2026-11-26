@@ -157,7 +157,7 @@ export function platesHTML(target, bar) {
 
 // ---------- Kveldsrapport fra Claude ----------
 // Én linje per dag: "ISTREFI dato=2026-11-25 kcal=1890 protein=172 karbo=160 fett=60 skritt=9512 vekt=84.2 midje=90"
-const R_KEYS = { kcal: 'kcal', protein: 'protein', karbo: 'carbs', karbohydrater: 'carbs', fett: 'fat', skritt: 'steps', sovn: 'sleep', 'søvn': 'sleep', vekt: 'weight', midje: 'waist' };
+const R_KEYS = { fettprosent: 'fatPct', kroppsfett: 'fatPct', muskel: 'muscle', muskelmasse: 'muscle', bmi: 'bmi', benmasse: 'bone', vann: 'water', kroppsvann: 'water', kcal: 'kcal', protein: 'protein', karbo: 'carbs', karbohydrater: 'carbs', fett: 'fat', skritt: 'steps', sovn: 'sleep', 'søvn': 'sleep', vekt: 'weight', midje: 'waist' };
 export function parseReport(text) {
   const days = [];
   // Del ved hvert «ISTREFI» – linjeskift kan forsvinne når koden kopieres på iPhone.
@@ -174,4 +174,33 @@ export function parseReport(text) {
     if (Object.keys(day).length > 1) days.push(day);
   }
   return days;
+}
+
+// ---------- Kroppssammensetning (fra smartvekt) ----------
+export const COMP = [
+  { k: 'fatPct', label: 'Kroppsfett', unit: '%', dec: 1, goodDown: true },
+  { k: 'muscle', label: 'Muskelmasse', unit: 'kg', dec: 1, goodDown: false },
+  { k: 'bmi', label: 'BMI', unit: '', dec: 1, goodDown: true },
+  { k: 'water', label: 'Kroppsvann', unit: '%', dec: 1, goodDown: false },
+  { k: 'bone', label: 'Benmasse', unit: 'kg', dec: 1, goodDown: null },
+];
+export const COMP_KEYS = COMP.map((c) => c.k);
+export function compCard(sel, lineChart) {
+  const have = COMP.filter((c) => S.body.some((b) => b[c.k] != null));
+  if (!have.length) return '';
+  const cur = have.find((c) => c.k === sel) || have[0];
+  const pts = S.body.filter((b) => b[cur.k] != null).map((b) => ({ x: b.date, y: b[cur.k] }));
+  const first = pts[0].y, last = pts.at(-1).y, diff = last - first;
+  const good = cur.goodDown == null || pts.length < 2 ? '' : (cur.goodDown ? diff <= 0 : diff >= 0) ? 'good' : '';
+  const n = (v) => fmtNum(Math.round(v * 10) / 10);
+  // Fettmasse og fettfri masse utledet fra siste veiing med vekt + fett%
+  const lastFull = S.body.filter((b) => b.weight != null && b.fatPct != null).at(-1);
+  const fatKg = lastFull ? (lastFull.weight * lastFull.fatPct) / 100 : null;
+  return `<div class="card"><div class="row between"><div class="eyebrow">Kroppssammensetning</div>${pts.length > 1 ? `<span class="delta ${good}">${diff > 0 ? '+' : ''}${n(diff)}${cur.unit ? ' ' + cur.unit : ''}</span>` : ''}</div>
+    <div class="chips">${have.map((c) => `<button class="chip sm ${c.k === cur.k ? 'on' : ''}" data-a="compSel" data-k="${c.k}">${c.label}</button>`).join('')}</div>
+    <div class="bigval">${last.toFixed(cur.dec).replace('.', ',')} <small>${cur.unit}</small></div>
+    ${lineChart(pts, { unit: cur.unit ? ' ' + cur.unit : '' })}
+    ${fatKg != null ? `<div class="stats two in m0 mt"><div><b>${n(fatKg)}</b><span>kg fettmasse</span></div><div><b>${n(lastFull.weight - fatKg)}</b><span>kg fettfri masse</span></div></div>` : ''}
+    <p class="muted small m0 mt-s">Smartvekter måler kroppsfett og muskler med strøm gjennom kroppen. Det svinger med væske, så se på trenden over uker, ikke dag til dag. Vei deg på samme tid hver morgen.</p>
+  </div>`;
 }

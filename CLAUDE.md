@@ -22,9 +22,11 @@ Brukeren sender skjermbilder fra MyFitnessPal/Garmin. Les av tallene og svar med
 
 ```
 ISTREFI dato=2026-11-25 kcal=1890 protein=172 karbo=160 fett=60 skritt=9512 vekt=84.2 midje=90
+ISTREFI dato=2026-11-26 vekt=83.2 fettprosent=22.0 muskel=34.4 bmi=25.7 benmasse=5.4 vann=56.9
 ```
 
-- Felter (alle valgfrie unntatt `dato`): `kcal`, `protein` (g), `karbo` (g), `fett` (g), `skritt`, `vekt` (kg), `midje` (cm).
+- Felter (alle valgfrie unntatt `dato`): `kcal`, `protein` (g), `karbo` (g), `fett` (g), `skritt`, `vekt` (kg), `midje` (cm),
+  og fra Garmin-vekta: `fettprosent` (%), `muskel` (kg), `bmi`, `benmasse` (kg), `vann` (%). NB: `fett` = gram fett i kosten, `fettprosent` = kroppsfett.
   Søvn følges ikke lenger (brukerens valg 26.11.2026) – ikke ta med `sovn`.
 - Utelat felt du ikke kan lese sikkert. Flere dager = flere linjer.
 - Brukeren kopierer og trykker «📋 Lim inn fra Claude» på forsiden. Data lagres kun på telefonen.

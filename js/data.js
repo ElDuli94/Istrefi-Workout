@@ -86,7 +86,10 @@ export function exportForClaude(days = 28) {
   const body = S.body.filter((b) => b.date >= since);
   if (body.length) {
     L.push('', '## Kroppsmål');
-    for (const b of body) L.push(`${isoDate(b.date)}: ${b.weight != null ? b.weight + ' kg' : ''}${b.waist != null ? ` · midje ${b.waist} cm` : ''}${b.note ? ` · ${b.note}` : ''}`);
+    for (const b of body) {
+      const parts = [b.weight != null ? `${b.weight} kg` : '', b.waist != null ? `midje ${b.waist} cm` : '', b.fatPct != null ? `fett ${b.fatPct} %` : '', b.muscle != null ? `muskel ${b.muscle} kg` : '', b.bmi != null ? `BMI ${b.bmi}` : '', b.water != null ? `vann ${b.water} %` : '', b.bone != null ? `ben ${b.bone} kg` : '', b.note || ''].filter(Boolean);
+      L.push(`${isoDate(b.date)}: ${parts.join(' · ')}`);
+    }
   }
   const dailyDays = Object.keys(S.daily).filter((d) => fromIsoSafe(d) >= since).sort();
   if (dailyDays.length) {

@@ -4,11 +4,11 @@ import { $, $$, uid, esc, DAYS, DAYS_SHORT, dayIdx, weekStart, fmtDate, fmtDay, 
 import { lineChart } from './charts.js';
 import { ANGLES, addPhotos, photoURL, forgetURL, photosByAngle, weightNear } from './photos.js';
 import { SPRITE, bodyMini, bodyMap } from './muscles.js';
-import { parseReport, progression, dailyCard, dailyInputs, dailyClass, dailyWeekCard, streak, weekReport, reminderCard, platesHTML } from './extras.js';
+import { COMP, COMP_KEYS, compCard, parseReport, progression, dailyCard, dailyInputs, dailyClass, dailyWeekCard, streak, weekReport, reminderCard, platesHTML } from './extras.js';
 import { importProgram, validateProgram, exportForClaude, makeBackup, restoreBackup, wipeAll } from './data.js';
 
-const APP_VERSION = '1.7.0';
-const ui = { lib: { q: '', g: '', eq: '' }, photoAngle: 'front', cmp: { angle: 'front', a: null, b: null, mode: 'slide', pos: 50 }, exportDays: 28 };
+const APP_VERSION = '1.8.0';
+const ui = { comp: 'fatPct', lib: { q: '', g: '', eq: '' }, photoAngle: 'front', cmp: { angle: 'front', a: null, b: null, mode: 'slide', pos: 50 }, exportDays: 28 };
 
 // ================= Router =================
 function parseRoute() {
@@ -482,6 +482,7 @@ function vProgress() {
         <button class="btn primary block mt" data-a="bodySheet">⚖️ Logg vekt / mål</button>
       </div>
       ${dailyWeekCard()}
+      ${compCard(ui.comp, lineChart)}
       ${waist.length ? `<div class="card"><div class="eyebrow">Midjemål</div>${lineChart(waist.map((b) => ({ x: b.date, y: b.waist })), { unit: ' cm' })}</div>` : ''}
       <div class="card">
         <div class="row between"><div class="eyebrow">Progresjonsbilder</div><span class="muted small">${S.photos.length} bilder</span></div>
@@ -490,7 +491,7 @@ function vProgress() {
         <div class="row gap mt"><button class="btn primary grow" data-a="photoSheet">${icon.cam} Legg til bilde</button><a class="btn grow ${photos.length < 2 ? 'disabled' : ''}" href="#/compare?angle=${ui.photoAngle}">Sammenlign</a></div>
         <p class="muted small mt-s">Tips: Ta bildene samme sted, med samme lys og avstand – da blir sammenligningen best.</p>
       </div>
-      ${S.body.length ? `<h3 class="sec">Registreringer</h3>${S.body.slice().reverse().slice(0, 20).map((b) => `<div class="item"><div class="grow"><b>${fmtDate(b.date)}</b><small class="muted">${b.weight != null ? fmtNum(b.weight) + ' kg' : ''}${b.waist != null ? ' · midje ' + fmtNum(b.waist) + ' cm' : ''}${b.note ? ' · ' + esc(b.note) : ''}</small></div><button class="icon-btn sm danger" data-a="delBody" data-id="${b.id}">${icon.x}</button></div>`).join('')}` : ''}
+      ${S.body.length ? `<h3 class="sec">Registreringer</h3>${S.body.slice().reverse().slice(0, 20).map((b) => `<div class="item"><div class="grow"><b>${fmtDate(b.date)}</b><small class="muted">${b.weight != null ? fmtNum(b.weight) + ' kg' : ''}${b.waist != null ? ' · midje ' + fmtNum(b.waist) + ' cm' : ''}${b.fatPct != null ? ' · fett ' + fmtNum(b.fatPct) + ' %' : ''}${b.muscle != null ? ' · muskel ' + fmtNum(b.muscle) + ' kg' : ''}${b.note ? ' · ' + esc(b.note) : ''}</small></div><button class="icon-btn sm danger" data-a="delBody" data-id="${b.id}">${icon.x}</button></div>`).join('')}` : ''}
     `,
   };
 }
@@ -633,6 +634,9 @@ function bodySheet() {
     <label class="lbl">Dato<input type="date" id="b-date" value="${isoDate()}"></label>
     <div class="grid2"><label class="lbl">Vekt (kg)<input id="b-w" inputmode="decimal" placeholder="${last?.weight != null ? fmtNum(last.weight) : '80,0'}"></label>
     <label class="lbl">Midje (cm)<input id="b-waist" inputmode="decimal" placeholder="${last?.waist != null ? fmtNum(last.waist) : 'valgfritt'}"></label></div>
+    <details class="more-fields"><summary>Flere mål fra smartvekt (valgfritt)</summary>
+      <div class="grid2">${COMP.map((c) => `<label class="lbl">${c.label}${c.unit ? ` (${c.unit})` : ''}<input id="b-${c.k}" inputmode="decimal" placeholder="${last?.[c.k] != null ? fmtNum(last[c.k]) : ''}"></label>`).join('')}</div>
+    </details>
     <label class="lbl">Notat<input id="b-note" placeholder="Valgfritt"></label>
     <button class="btn primary block mt" data-a="saveBody">Lagre</button>`);
 }
@@ -793,11 +797,13 @@ const A = {
   bodySheet,
   saveBody: async () => {
     const weight = parseNum($('#b-w').value), waist = parseNum($('#b-waist').value);
-    if (weight == null && waist == null) { toast('Fyll inn vekt eller midjemål'); return; }
-    await store.putBody({ id: uid(), date: fromIso($('#b-date').value || isoDate()), weight, waist, note: $('#b-note').value.trim() });
+    const extra = {}; for (const k of COMP_KEYS) { const v = parseNum($('#b-' + k)?.value); if (v != null) extra[k] = v; }
+    if (weight == null && waist == null && !Object.keys(extra).length) { toast('Fyll inn minst ett mål'); return; }
+    await store.putBody({ id: uid(), date: fromIso($('#b-date').value || isoDate()), weight, waist, ...extra, note: $('#b-note').value.trim() });
     closeSheet(); toast('Lagret ✓'); render();
   },
   delBody: async (el) => { if (!confirm('Slette registreringen?')) return; await store.delBody(el.dataset.id); render(); },
+  compSel: (el) => { ui.comp = el.dataset.k; render(); },
   photoAngle: (el) => { ui.photoAngle = el.dataset.k; render(); },
   photoSheet,
   phAngle: (el) => { ui.photoAngle = el.dataset.k; $$('#ph-angle button').forEach((b) => b.classList.toggle('on', b === el)); },
@@ -854,12 +860,13 @@ async function applyReport(text) {
     const day = (S.daily[d.date] ||= {});
     for (const k of ['kcal', 'protein', 'carbs', 'fat', 'steps']) if (d[k] != null) day[k] = Math.round(d[k]);
     if (d.sleep != null) day.sleep = Math.round(d.sleep * 10) / 10;
-    if (d.weight != null || d.waist != null) {
+    if (d.weight != null || d.waist != null || COMP_KEYS.some((k) => d[k] != null)) {
       const t = fromIso(d.date);
       const ex0 = S.body.find((b) => isoDate(b.date) === d.date);
       const b = ex0 ? { ...ex0 } : { id: uid(), date: t, note: '' };
       if (d.weight != null) b.weight = Math.round(d.weight * 10) / 10;
       if (d.waist != null) b.waist = Math.round(d.waist * 10) / 10;
+      for (const k of COMP_KEYS) if (d[k] != null) b[k] = Math.round(d[k] * 10) / 10;
       await store.putBody(b);
     }
   }
