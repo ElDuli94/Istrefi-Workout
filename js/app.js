@@ -7,7 +7,7 @@ import { SPRITE, bodyMini, bodyMap } from './muscles.js';
 import { refreshBurn, COMP, COMP_KEYS, compCard, parseReport, progression, dailyCard, dailyInputs, dailyClass, dailyWeekCard, streak, weekReport, reminderCard, platesHTML } from './extras.js';
 import { importProgram, validateProgram, exportForClaude, makeBackup, restoreBackup, wipeAll } from './data.js';
 
-const APP_VERSION = '1.11.0';
+const APP_VERSION = '1.12.0';
 const ui = { comp: 'fatPct', lib: { q: '', g: '', eq: '' }, photoAngle: 'front', cmp: { angle: 'front', a: null, b: null, mode: 'slide', pos: 50 }, exportDays: 28 };
 
 // ================= Router =================
@@ -149,6 +149,7 @@ function vPlan() {
         <div class="row between"><div><div class="eyebrow">Ukesplan</div><h3 class="m0">${esc(S.plan.name || 'Min plan')}</h3></div></div>
         ${S.plan.description ? `<p class="muted small">${esc(S.plan.description)}</p>` : ''}
         <div class="plan">${days}</div>
+        ${S.plan.days.some((d) => d.length) || S.plan.name ? `<button class="btn sm block ghost danger mt" data-a="planClear">Tøm ukesplanen</button>` : ''}
         ${S.plan.notes ? `<details class="notes"><summary>Notater fra treneren</summary><p>${esc(S.plan.notes).replace(/\n/g, '<br>')}</p></details>` : ''}
       </div>
       ${lists || '<p class="muted center">Ingen økter ennå.</p>'}
@@ -703,6 +704,17 @@ const A = {
       ${S.plan.days[d].length ? `<button class="btn block ghost danger mt" data-a="dayClear" data-day="${d}">Gjør til hviledag</button>` : ''}`);
   },
   dayPut: async (el) => { const d = +el.dataset.day; if (!S.plan.days[d].includes(el.dataset.id)) S.plan.days[d].push(el.dataset.id); await store.savePlan(); closeSheet(); render(); },
+  planClear: async () => {
+    if (!confirm('Tømme hele ukesplanen? Alle dager blir hviledager. Treningsloggen din beholdes.')) return;
+    const progId = S.plan.programId;
+    const progTpls = progId ? S.templates.filter((t) => t.programId === progId) : [];
+    if (progTpls.length && confirm(`Vil du også slette de ${progTpls.length} øktene fra programmet «${S.plan.name}»?\n\nOK = slett dem\nAvbryt = behold dem under «Økter»`)) {
+      for (const t of progTpls) await store.delTemplate(t.id);
+    }
+    S.plan = { days: [[], [], [], [], [], [], []], name: '', notes: '', programId: null };
+    await store.savePlan();
+    toast('Ukesplanen er tømt'); render();
+  },
   dayClear: async (el) => { S.plan.days[+el.dataset.day] = []; await store.savePlan(); closeSheet(); render(); },
   dayItem: (el) => {
     const d = +el.dataset.day, t = tplById(el.dataset.id);
