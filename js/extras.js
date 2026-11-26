@@ -41,11 +41,24 @@ export function dailyClass(f, v) {
   const dir = DAILY_FIELDS.find((d) => d.f === f).dir;
   return (dir === 'max' ? v <= t : v >= t) ? 'ok' : 'miss';
 }
+// Underskudd = forbrent (Garmin totalt) − spist (MyFitnessPal). Regnes ut, lagres ikke.
+export const deficitOf = (d) => (d && d.burned != null && d.kcal != null ? d.burned - d.kcal : null);
+function deficitClass(v) { return v == null ? '' : v < 0 ? 'miss' : v > 1000 ? 'warn' : 'ok'; }
+export function deficitText(v) {
+  if (v == null) return '';
+  return v >= 0 ? `<span>Underskudd <b>${Math.round(v)}</b> kcal</span>` : `<span>Overskudd <b>${Math.round(-v)}</b> kcal</span>`;
+}
 export function dailyInputs(date) {
   const d = S.daily[date] || {};
   return `<div class="daily-grid">${DAILY_FIELDS.map(({ f, label, unit }) => `<label>${label}${unit ? ` <small>${unit}</small>` : ''}
     <input class="${dailyClass(f, d[f])}" data-daily="${f}" data-date="${date}" inputmode="numeric"
-      value="${d[f] != null ? fmtNum(d[f]) : ''}" placeholder="${S.settings.targets?.[f] ? fmtNum(S.settings.targets[f]) : '–'}"></label>`).join('')}</div>`;
+      value="${d[f] != null ? fmtNum(d[f]) : ''}" placeholder="${S.settings.targets?.[f] ? fmtNum(S.settings.targets[f]) : '–'}"></label>`).join('')}</div>
+    <div class="burn-row"><label>🔥 Forbrent (Garmin)<input data-daily="burned" data-date="${date}" inputmode="numeric" value="${d.burned != null ? fmtNum(d.burned) : ''}" placeholder="kcal"></label>
+      <div class="deficit ${deficitClass(deficitOf(d))}" data-deficit="${date}">${deficitOf(d) != null ? deficitText(deficitOf(d)) : '<span class="muted">Underskudd vises når kcal og forbrent er fylt inn</span>'}</div></div>`;
+}
+export function deficitHTML(date) {
+  const v = deficitOf(S.daily[date]);
+  return { cls: 'deficit ' + deficitClass(v), html: v != null ? deficitText(v) : '<span class="muted">Underskudd vises når kcal og forbrent er fylt inn</span>' };
 }
 export function dailyCard() {
   const date = isoDate();
@@ -54,6 +67,16 @@ export function dailyCard() {
     ${dailyInputs(date)}
     <button class="btn sm block mt-s" data-a="reportPaste">📋 Lim inn fra Claude</button>
     ${has ? '<p class="muted small m0 mt-s">Grå tall er målene dine. Grønn = nådd.</p>' : '<p class="muted small m0 mt-s">Sett målene dine under Innstillinger (tannhjulet).</p>'}</div>`;
+}
+export function deficitSummary(days) {
+  const defs = days.map((d) => ({ d, v: deficitOf(S.daily[d]) })).filter((x) => x.v != null);
+  if (!defs.length) return '';
+  const sum = defs.reduce((a, x) => a + x.v, 0), mean = sum / defs.length;
+  const kg = sum / 7700;
+  return `<div class="defsum">
+    <div class="defbars">${days.map((d) => { const v = deficitOf(S.daily[d]); const h = v == null ? 0 : Math.min(100, Math.abs(v) / 10); return `<div title="${d}"><i class="${v == null ? 'none' : v < 0 ? 'neg' : v > 1000 ? 'warn' : ''}" style="height:${h}%"></i><span>${new Date(d + 'T12:00').getDate()}</span></div>`; }).join('')}</div>
+    <div class="stats in m0"><div><b class="${deficitClass(mean)}">${Math.round(mean)}</b><span>kcal underskudd/dag</span></div><div><b>${Math.round(sum)}</b><span>kcal totalt (${defs.length} d)</span></div><div><b>${kg >= 0 ? '≈ ' + fmtNum(Math.round(kg * 100) / 100) : '+' + fmtNum(Math.round(-kg * 100) / 100)}</b><span>kg fett ${kg >= 0 ? 'tapt' : 'lagt på'}</span></div></div>
+  </div>`;
 }
 const last7 = () => [...Array(7)].map((_, i) => isoDate(Date.now() - (6 - i) * DAY));
 export function dailyWeekCard() {
@@ -65,6 +88,7 @@ export function dailyWeekCard() {
   return `<div class="card"><div class="eyebrow">Kosthold og skritt – 7 dager</div>
     <table class="dtable"><thead><tr><th></th><th>kcal</th><th>Prot.</th><th>Karbo</th><th>Fett</th><th>Skritt</th></tr></thead>
     <tbody>${rows}</tbody><tfoot><tr><td>Snitt</td>${avgRow}</tr></tfoot></table>
+    ${deficitSummary(days)}
     <p class="muted small m0">Trykk på en dag for å fylle inn eller rette.</p></div>`;
 }
 
@@ -118,6 +142,7 @@ export function weekReport(off, { sessionItem, prList }) {
     <div class="card"><div class="eyebrow">Daglig snitt (${logged} av 7 dager logget)</div>
       <div class="stats in m0">${dl('kcal', 'kcal')}${dl('protein', 'g protein')}${dl('steps', 'skritt')}</div>
       <div class="stats two in m0 mt-s">${dl('carbs', 'g karbo')}${dl('fat', 'g fett')}</div>
+      ${deficitSummary(days)}
     </div>
     ${prs.length ? `<div class="card prs"><b>🏆 Rekorder</b>${prs.map((p) => `<div>${esc(p)}</div>`).join('')}</div>` : ''}
     ${sess.length ? `<h3 class="sec">Økter</h3>${sess.map(sessionItem).join('')}` : ''}`;
@@ -157,7 +182,7 @@ export function platesHTML(target, bar) {
 
 // ---------- Kveldsrapport fra Claude ----------
 // Én linje per dag: "ISTREFI dato=2026-11-25 kcal=1890 protein=172 karbo=160 fett=60 skritt=9512 vekt=84.2 midje=90"
-const R_KEYS = { fettprosent: 'fatPct', kroppsfett: 'fatPct', muskel: 'muscle', muskelmasse: 'muscle', bmi: 'bmi', benmasse: 'bone', vann: 'water', kroppsvann: 'water', kcal: 'kcal', protein: 'protein', karbo: 'carbs', karbohydrater: 'carbs', fett: 'fat', skritt: 'steps', sovn: 'sleep', 'søvn': 'sleep', vekt: 'weight', midje: 'waist' };
+const R_KEYS = { forbrent: 'burned', forbrenning: 'burned', fettprosent: 'fatPct', kroppsfett: 'fatPct', muskel: 'muscle', muskelmasse: 'muscle', bmi: 'bmi', benmasse: 'bone', vann: 'water', kroppsvann: 'water', kcal: 'kcal', protein: 'protein', karbo: 'carbs', karbohydrater: 'carbs', fett: 'fat', skritt: 'steps', sovn: 'sleep', 'søvn': 'sleep', vekt: 'weight', midje: 'waist' };
 export function parseReport(text) {
   const days = [];
   // Del ved hvert «ISTREFI» – linjeskift kan forsvinne når koden kopieres på iPhone.

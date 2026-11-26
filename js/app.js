@@ -4,10 +4,10 @@ import { $, $$, uid, esc, DAYS, DAYS_SHORT, dayIdx, weekStart, fmtDate, fmtDay, 
 import { lineChart } from './charts.js';
 import { ANGLES, addPhotos, photoURL, forgetURL, photosByAngle, weightNear } from './photos.js';
 import { SPRITE, bodyMini, bodyMap } from './muscles.js';
-import { COMP, COMP_KEYS, compCard, parseReport, progression, dailyCard, dailyInputs, dailyClass, dailyWeekCard, streak, weekReport, reminderCard, platesHTML } from './extras.js';
+import { deficitHTML, COMP, COMP_KEYS, compCard, parseReport, progression, dailyCard, dailyInputs, dailyClass, dailyWeekCard, streak, weekReport, reminderCard, platesHTML } from './extras.js';
 import { importProgram, validateProgram, exportForClaude, makeBackup, restoreBackup, wipeAll } from './data.js';
 
-const APP_VERSION = '1.8.0';
+const APP_VERSION = '1.9.0';
 const ui = { comp: 'fatPct', lib: { q: '', g: '', eq: '' }, photoAngle: 'front', cmp: { angle: 'front', a: null, b: null, mode: 'slide', pos: 50 }, exportDays: 28 };
 
 // ================= Router =================
@@ -765,7 +765,7 @@ const A = {
       ${S.daily[d] ? `<button class="btn block ghost danger mt" data-a="dailyDelete" data-date="${d}">Slett dagen</button>` : ''}`);
   },
   closeDaily: () => { closeSheet(); render(); },
-  dailyDelete: async (el) => { if (!confirm('Slette kalorier, protein, karbo, fett og skritt for denne dagen?')) return; delete S.daily[el.dataset.date]; await store.saveDaily(); closeSheet(); toast('Dagen er slettet'); render(); },
+  dailyDelete: async (el) => { if (!confirm('Slette kosthold, skritt og forbrenning for denne dagen?')) return; delete S.daily[el.dataset.date]; await store.saveDaily(); closeSheet(); toast('Dagen er slettet'); render(); },
   reportPaste: async () => {
     let text = '';
     try { text = await navigator.clipboard.readText(); } catch {}
@@ -858,7 +858,7 @@ async function applyReport(text) {
   if (!days.length) return false;
   for (const d of days) {
     const day = (S.daily[d.date] ||= {});
-    for (const k of ['kcal', 'protein', 'carbs', 'fat', 'steps']) if (d[k] != null) day[k] = Math.round(d[k]);
+    for (const k of ['kcal', 'protein', 'carbs', 'fat', 'steps', 'burned']) if (d[k] != null) day[k] = Math.round(d[k]);
     if (d.sleep != null) day.sleep = Math.round(d.sleep * 10) / 10;
     if (d.weight != null || d.waist != null || COMP_KEYS.some((k) => d[k] != null)) {
       const t = fromIso(d.date);
@@ -904,7 +904,8 @@ document.addEventListener('input', (ev) => {
     const d = t.dataset.date, f = t.dataset.daily;
     const day = (S.daily[d] ||= {});
     day[f] = parseNum(t.value);
-    t.className = dailyClass(f, day[f]);
+    if (f !== 'burned') t.className = dailyClass(f, day[f]);
+    const dEl = $(`[data-deficit="${d}"]`); if (dEl) { const x = deficitHTML(d); dEl.className = x.cls; dEl.innerHTML = x.html; }
     clearTimeout(dailyT); dailyT = setTimeout(() => store.saveDaily(), 300);
     return;
   }
